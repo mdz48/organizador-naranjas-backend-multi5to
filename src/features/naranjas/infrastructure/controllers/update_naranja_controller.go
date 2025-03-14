@@ -15,18 +15,8 @@ func NewUpdateNaranjaController(updateNaranjaService *application.UpdateNaranjaU
 }
 
 func (c *UpdateNaranjaController) Update(ctx *gin.Context) {
-/*
-	var naranja domain.Naranja
-	if err := ctx.ShouldBindJSON(&naranja); err != nil {
-		ctx.JSON(400, gin.H{"error": "Invalid input"})
-		return
-	}
-
-	naranjaEditada, err := c.updateNaranjaService.Execute(naranja)
-	if err != nil {
-		ctx.JSON(500, gin.H{"error": "Error updating naranja"})
-		return
-	}
-	ctx.JSON(201, naranjaEditada)
-	*/
-	}
+	//naranja := domain.Naranja{}
+	//ctx.BindJSON(&naranja)
+	//c.updateNaranjaService.Execute(naranja)
+	ctx.JSON(200, gin.H{"message": "Naranja updated"})
+}

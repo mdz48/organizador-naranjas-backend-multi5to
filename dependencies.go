@@ -36,10 +36,14 @@ func (d *Dependencies) Run() error {
 	naranjaDatabase := naranjasInfrastructure.NewMySQL(database.Conn); 
 	createNaranjaUseCase := naranjasUseCases.NewCreateCajaUseCase(naranjaDatabase)
 	createNaranjaController := naranjasControllers.NewCreateNaranjaController(createNaranjaUseCase)
-	naranjasRoutes := naranjasInfrastructure.NewCajasRoutes(d.engine,createNaranjaController)
+	getAllNaranjaUseCase := naranjasUseCases.NewGetAllUseCase(naranjaDatabase)
+	getAllNaranjasController := naranjasControllers.NewGetAllController(getAllNaranjaUseCase)
+	updateNaranjaUseCase := naranjasUseCases.NewUpdateNaranjaUseCase(naranjaDatabase)
+	updateContollers := naranjasControllers.NewUpdateNaranjaController(updateNaranjaUseCase)
+	naranjasRoutes := naranjasInfrastructure.NewNaranjasRoutes(d.engine,createNaranjaController, getAllNaranjasController, updateContollers)
 
 	cajasRoutes.SetupRoutes()
 	naranjasRoutes.SetupRoutes();
 
-	return d.engine.Run(":8081")
+	return d.engine.Run(":8080")
 }

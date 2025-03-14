@@ -15,24 +15,18 @@ func NewMySQL(db *sql.DB) *MySQL {
 }
 
 func (m *MySQL) Create(naranja domain.Naranja) (domain.Naranja, error) {
-	query := "INSERT INTO cajas (descripcion, peso_total, precio, lote_fk, encargado_fk) VALUES (?, ?, ?, ?, ?)"
-	queryCaja := "SELECT id FROM cajas WHERE hora_creacion < ? AND hora_fin > ?"
+	result, err := m.db.Prepare("INSERT INTO naranjas (peso, tamano, color, hora, caja_fk) VALUES (?, ?, ?, ?, ?)")
+	if err != nil {
+		return domain.Naranja{}, err
+	}
+	defer result.Close()
 
-    var idCaja int
-    err := m.db.QueryRow(queryCaja, naranja.Hora, naranja.Hora).Scan(&idCaja)
-    if err != nil {
-        if errors.Is(err, sql.ErrNoRows) {
-            return domain.Naranja{}, errors.New("no se encontró una caja disponible para la hora especificada")
-        }
-        return domain.Naranja{}, err
-    }
-
-	result, err := m.db.Exec(query, naranja.Peso, naranja.Tamaño, naranja.Color, naranja.Hora, idCaja)
+	res, err := result.Exec(naranja.Peso, naranja.Tamaño, naranja.Color, naranja.Hora, naranja.CajaFK)
 	if err != nil {
 		return domain.Naranja{}, err
 	}
 
-	id, err := result.LastInsertId()
+	id, err := res.LastInsertId()
 	if err != nil {
 		return domain.Naranja{}, err
 	}
@@ -40,93 +34,104 @@ func (m *MySQL) Create(naranja domain.Naranja) (domain.Naranja, error) {
 	naranja.ID = int(id)
 	return naranja, nil
 }
-/*
-func (m *MySQL) GetAll() ([]cajas.Caja, error) {
-	query := "SELECT id, descripcion, peso_total, precio, lote_fk, encargado_fk FROM cajas"
-	rows, err := m.db.Query(query)
+
+func (m *MySQL) GetById(id int) (domain.Naranja, error) {
+	var naranja domain.Naranja
+
+	err := m.db.QueryRow("SELECT id, peso, tamaño, color, hora, caja_fk FROM naranjas WHERE id = ?", id).
+		Scan(&naranja.ID, &naranja.Peso, &naranja.Tamaño, &naranja.Color, &naranja.Hora, &naranja.CajaFK)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return domain.Naranja{}, errors.New("naranja not found")
+		}
+		return domain.Naranja{}, err
+	}
+
+	return naranja, nil
+}
+
+func (m *MySQL) GetByCaja(cajaId int) ([]domain.Naranja, error) {
+	rows, err := m.db.Query("SELECT id, peso, tamaño, color, hora, caja_fk FROM naranjas WHERE caja_fk = ?", cajaId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var cajas []cajas.Caja
+	var naranjas []domain.Naranja
 	for rows.Next() {
-		var caja CajasRoutes
-		if err := rows.Scan(&caja.ID, &caja.Descripcion, &caja.PesoTotal, &caja.Precio, &caja.LoteFK, &caja.EncargadoFK); err != nil {
+		var naranja domain.Naranja
+		if err := rows.Scan(&naranja.ID, &naranja.Peso, &naranja.Tamaño, &naranja.Color, &naranja.Hora, &naranja.CajaFK); err != nil {
 			return nil, err
 		}
-		cajas = append(cajas, caja)
+		naranjas = append(naranjas, naranja)
 	}
 
-	return cajas, nil
-}
-
-func (m *MySQL) GetById(id int) (domain.Caja, error) {
-	query := "SELECT id, descripcion, peso_total, precio, lote_fk, encargado_fk FROM cajas WHERE id = ?"
-	row := m.db.QueryRow(query, id)
-
-	var caja domain.Caja
-	if err := row.Scan(&caja.ID, &caja.Descripcion, &caja.PesoTotal, &caja.Precio, &caja.LoteFK, &caja.EncargadoFK); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return domain.Caja{}, nil
-		}
-		return domain.Caja{}, err
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 
-	return caja, nil
+	return naranjas, nil
 }
 
-func (m *MySQL) GetByDescripcion(descripcion string) (domain.Caja, error) {
-	query := "SELECT id, descripcion, peso_total, precio, lote_fk, encargado_fk FROM cajas WHERE descripcion = ?"
-	row := m.db.QueryRow(query, descripcion)
-
-	var caja domain.Caja
-	if err := row.Scan(&caja.ID, &caja.Descripcion, &caja.PesoTotal, &caja.Precio, &caja.LoteFK, &caja.EncargadoFK); err != nil {
-		if err == sql.ErrNoRows {
-			return domain.Caja{}, nil
-		}
-		return domain.Caja{}, err
-	}
-
-	return caja, nil
-}
-
-func (m *MySQL) Update(caja domain.Caja) (domain.Caja, error) {
-	query := "UPDATE cajas SET descripcion = ?, peso_total = ?, precio = ?, lote_fk = ?, encargado_fk = ? WHERE id = ?"
-	_, err := m.db.Exec(query, caja.Descripcion, caja.PesoTotal, caja.Precio, caja.LoteFK, caja.EncargadoFK, caja.ID)
+func (m *MySQL) GetAll() ([]domain.Naranja, error) {
+	rows, err := m.db.Query("SELECT id, peso, tamaño, color, hora, caja_fk FROM naranjas")
 	if err != nil {
-		return domain.Caja{}, err
+		return nil, err
+	}
+	defer rows.Close()
+
+	var naranjas []domain.Naranja
+	for rows.Next() {
+		var naranja domain.Naranja
+		if err := rows.Scan(&naranja.ID, &naranja.Peso, &naranja.Tamaño, &naranja.Color, &naranja.Hora, &naranja.CajaFK); err != nil {
+			return nil, err
+		}
+		naranjas = append(naranjas, naranja)
 	}
 
-	return caja, nil
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return naranjas, nil
+}
+
+func (m *MySQL) Update(naranja domain.Naranja) (domain.Naranja, error) {
+	stmt, err := m.db.Prepare("UPDATE naranjas SET peso = ?, tamaño = ?, color = ?, hora = ?, caja_fk = ? WHERE id = ?")
+	if err != nil {
+		return domain.Naranja{}, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(naranja.Peso, naranja.Tamaño, naranja.Color, naranja.Hora, naranja.CajaFK, naranja.ID)
+	if err != nil {
+		return domain.Naranja{}, err
+	}
+
+	return naranja, nil
 }
 
 func (m *MySQL) Delete(id int) error {
-	_, err := m.db.Exec("DELETE FROM cajas WHERE id = ?", id)
+	stmt, err := m.db.Prepare("DELETE FROM naranjas WHERE id = ?")
 	if err != nil {
 		return err
 	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("no record found to delete")
+	}
+
 	return nil
 }
-
-func (m *MySQL) GetByLote(loteID int) ([]domain.Caja, error) {
-	query := "SELECT id, descripcion, peso_total, precio, lote_fk, encargado_fk FROM cajas WHERE lote_fk = ?"
-	rows, err := m.db.Query(query, loteID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var cajas []domain.Caja
-	for rows.Next() {
-		var caja domain.Caja
-		if err := rows.Scan(&caja.ID, &caja.Descripcion, &caja.PesoTotal, &caja.Precio, &caja.LoteFK, &caja.EncargadoFK); err != nil {
-			return nil, err
-		}
-		cajas = append(cajas, caja)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return cajas, nil
-}
-*/

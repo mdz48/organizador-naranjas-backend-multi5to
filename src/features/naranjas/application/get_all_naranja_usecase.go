@@ -12,14 +12,6 @@ func NewGetAllUseCase(naranjaRepository domain.INaranja) *GetAllNaranjaUseCase {
 	return &GetAllNaranjaUseCase{naranjaRepository: naranjaRepository} 
 }
 
-func (g *GetAllNaranjaUseCase) Execute()  {
-
-	/*
-	cajas, err := g.naranjaRepository.GetAll()
-	if err != nil {
-		return nil, err
-	}
-	return cajas, nil
-	*/
-	}
-
+func (u *GetAllNaranjaUseCase) Execute() ([]domain.Naranja, error) {
+	return u.naranjaRepository.GetAll()
+}
