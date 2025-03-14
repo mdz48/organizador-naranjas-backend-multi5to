@@ -7,6 +7,10 @@ import (
 	cajasUseCases "organizador-naranjas-backend-multi5to/src/features/cajas/application"
 	cajasInfrastructure "organizador-naranjas-backend-multi5to/src/features/cajas/infrastructure"
 	cajasControllers "organizador-naranjas-backend-multi5to/src/features/cajas/infrastructure/controllers"
+
+	naranjasInfrastructure "organizador-naranjas-backend-multi5to/src/features/naranjas/infrastructure"
+    naranjasUseCases "organizador-naranjas-backend-multi5to/src/features/naranjas/application"
+	naranjasControllers "organizador-naranjas-backend-multi5to/src/features/naranjas/infrastructure/controllers"
 )
 
 type Dependencies struct {
@@ -28,7 +32,14 @@ func (d *Dependencies) Run() error {
 	createCajaUseCase := cajasUseCases.NewCreateCajaUseCase(cajasDatabase)
 	createCajaController := cajasControllers.NewCreateCajaController(createCajaUseCase)
 	cajasRoutes := cajasInfrastructure.NewCajasRoutes(d.engine, getAllController, createCajaController)
-	cajasRoutes.SetupRoutes()
 
-	return d.engine.Run(":8080")
+	naranjaDatabase := naranjasInfrastructure.NewMySQL(database.Conn); 
+	createNaranjaUseCase := naranjasUseCases.NewCreateCajaUseCase(naranjaDatabase)
+	createNaranjaController := naranjasControllers.NewCreateNaranjaController(createNaranjaUseCase)
+	naranjasRoutes := naranjasInfrastructure.NewCajasRoutes(d.engine,createNaranjaController)
+
+	cajasRoutes.SetupRoutes()
+	naranjasRoutes.SetupRoutes();
+
+	return d.engine.Run(":8081")
 }

@@ -12,10 +12,12 @@ func NewUpdateNaranjaUseCase(naranjaRepository domain.INaranja) *UpdateNaranjaUs
 	return &UpdateNaranjaUseCase{naranjaRepository: naranjaRepository}
 }
 
-func (u *UpdateNaranjaUseCase) Execute(naranja domain.Naranja) (domain.Naranja, error) {
+func (u *UpdateNaranjaUseCase) Execute(naranja domain.Naranja) {
+	/*
 	caja, err := u.naranjaRepository.Update(naranja)
 	if err != nil {
 		return domain.Naranja{}, err
 	}
 	return caja, nil
-}
+	*/
+	}

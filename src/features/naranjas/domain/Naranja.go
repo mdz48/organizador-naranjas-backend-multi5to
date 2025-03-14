@@ -7,5 +7,5 @@ type Naranja struct {
 	Tamaño  float32 	`json:"tamaño"`
 	Color   float32 	`json:"color"`
 	Hora	time.Time 	`json: "hora"`
-	CajaFK	time.Time 	`json: "hora_inicio`
+	CajaFK	time.Time 	`json: "caja_fk`
 }

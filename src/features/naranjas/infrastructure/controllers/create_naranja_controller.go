@@ -2,20 +2,20 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"organizador-naranjas-backend-multi5to/src/features/cajas/application"
-	"organizador-naranjas-backend-multi5to/src/features/cajas/domain"
+	"organizador-naranjas-backend-multi5to/src/features/naranjas/application"
+	"organizador-naranjas-backend-multi5to/src/features/naranjas/domain"
 )
 
 type CreateNaranjaController struct {
-	createNaranjaService *application.CreateCajaUseCase
+	createNaranjaService *application.CreateNaranjaUseCase
 }
 
-func NewCreateNaranjaController(createNaranjaService *application.CreateCajaUseCase) *CreateNaranjaController {
+func NewCreateNaranjaController(createNaranjaService *application.CreateNaranjaUseCase) *CreateNaranjaController {
 	return &CreateNaranjaController{createNaranjaService}
 }
 
 func (c *CreateNaranjaController) Create(ctx *gin.Context) {
-	var caja domain.Caja
+	var caja domain.Naranja
 	if err := ctx.ShouldBindJSON(&caja); err != nil {
 		ctx.JSON(400, gin.H{"error": "Invalid input"})
 		return

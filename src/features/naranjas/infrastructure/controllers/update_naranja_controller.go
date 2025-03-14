@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"organizador-naranjas-backend-multi5to/src/features/naranjas/application"
-	"organizador-naranjas-backend-multi5to/src/features/naranjas/domain"
+	_"organizador-naranjas-backend-multi5to/src/features/naranjas/domain"
 )
 
 type UpdateNaranjaController struct {
@@ -15,6 +15,7 @@ func NewUpdateNaranjaController(updateNaranjaService *application.UpdateNaranjaU
 }
 
 func (c *UpdateNaranjaController) Update(ctx *gin.Context) {
+/*
 	var naranja domain.Naranja
 	if err := ctx.ShouldBindJSON(&naranja); err != nil {
 		ctx.JSON(400, gin.H{"error": "Invalid input"})
@@ -27,4 +28,5 @@ func (c *UpdateNaranjaController) Update(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(201, naranjaEditada)
-}
+	*/
+	}

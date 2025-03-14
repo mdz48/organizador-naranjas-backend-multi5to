@@ -12,10 +12,12 @@ func NewGetByDescriptionNaranjaUseCase(naranjaRepository domain.INaranja) *GetBy
 	return &GetByCajaNaranjaUseCase{naranjaRepository: naranjaRepository} 
 }
 
-func (g *GetByCajaNaranjaUseCase) Execute(cajaId int) ([]domain.Naranja, error) {
+func (g *GetByCajaNaranjaUseCase) Execute(cajaId int)  {
+	/*
 	naranjas, err := g.naranjaRepository.GetByCaja(cajaId)
 	if err != nil {
 		return nil, err
 	}
 	return naranjas, nil
-}
+	*/
+	}

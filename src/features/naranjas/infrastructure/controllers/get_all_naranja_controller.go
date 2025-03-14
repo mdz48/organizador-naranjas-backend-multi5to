@@ -14,10 +14,12 @@ func NewGetAllController(getAllService *application.GetAllNaranjaUseCase) *GetAl
 }
 
 func (c *GetAllNaranjaController) GetAll(ctx *gin.Context) {
+	/*
 	naranjas, err := c.getAllService.Execute()
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": "Error al obtener las naranjas"})
 		return
 	}
 	ctx.JSON(200, naranjas)
-}
+	*/
+	}

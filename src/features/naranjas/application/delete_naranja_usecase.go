@@ -10,10 +10,12 @@ func NewDeleteNaranjaOrderUseCase(caja domain.INaranja) *DeleteNaranjaUseCase {
 	return &DeleteNaranjaUseCase{naranjaRepository: caja}
 }
 
-func (d *DeleteNaranjaUseCase) Execute(id int) error {
+func (d *DeleteNaranjaUseCase) Execute(id int)  {
+	/*
 	err := d.naranjaRepository.Delete(id)
 	if err != nil {
 		return nil
 	}
 	return err
-}
+	*/
+	}
