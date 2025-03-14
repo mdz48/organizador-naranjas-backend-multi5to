@@ -9,7 +9,7 @@ type GetAllController struct {
 	getAllService *application.GetAllUseCase
 }
 
-func NewGetAllController(getAllService *application.GetAllUseCase) *GetAllController {
+func NewGetAllCajaController(getAllService *application.GetAllUseCase) *GetAllController {
 	return &GetAllController{getAllService}
 }
 

@@ -8,7 +8,7 @@ type GetByIdLoteCajaUseCase struct {
 	cajaRepository domain.ICaja
 }
 
-func NewGetByIdLoteUseCase(cajaRepository domain.ICaja) *GetByIdLoteCajaUseCase { 
+func NewGetByIdLoteCajaUseCase(cajaRepository domain.ICaja) *GetByIdLoteCajaUseCase { 
 	return &GetByIdLoteCajaUseCase{cajaRepository: cajaRepository} 
 }
 

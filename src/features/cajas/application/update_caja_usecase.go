@@ -8,7 +8,7 @@ type UpdateCajaUseCase struct {
 	cajaRepository domain.ICaja
 }
 
-func NewUpdateOrderUseCase(caja domain.ICaja) *UpdateCajaUseCase {
+func NewUpdateCajaUseCase(caja domain.ICaja) *UpdateCajaUseCase {
 	return &UpdateCajaUseCase{cajaRepository: caja}
 }
 

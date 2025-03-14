@@ -8,7 +8,7 @@ type GetAllUseCase struct {
 	cajaRepository domain.ICaja
 }
 
-func NewGetAllUseCase(cajaRepository domain.ICaja) *GetAllUseCase { return &GetAllUseCase{cajaRepository: cajaRepository} }
+func NewGetAllCajaUseCase(cajaRepository domain.ICaja) *GetAllUseCase { return &GetAllUseCase{cajaRepository: cajaRepository} }
 
 func (g *GetAllUseCase) Execute() ([]domain.Caja, error) {
 	cajas, err := g.cajaRepository.GetAll()
