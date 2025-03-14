@@ -5,13 +5,13 @@ import (
 )
 
 type GetAllUseCase struct {
-	db domain.ICaja
+	cajaRepository domain.ICaja
 }
 
-func NewGetAllUseCase(db domain.ICaja) *GetAllUseCase { return &GetAllUseCase{db: db} }
+func NewGetAllUseCase(cajaRepository domain.ICaja) *GetAllUseCase { return &GetAllUseCase{cajaRepository: cajaRepository} }
 
 func (g *GetAllUseCase) Execute() ([]domain.Caja, error) {
-	cajas, err := g.db.GetAll()
+	cajas, err := g.cajaRepository.GetAll()
 	if err != nil {
 		return nil, err
 	}

@@ -7,5 +7,5 @@ type ICaja interface {
 	Create(caja Caja) (Caja, error)
 	Update(caja Caja) (Caja, error)
 	Delete(id int) error
-	GetByLote(lote int) ([]Caja, error)
+	GetByLote(loteId int) ([]Caja, error)
 }
