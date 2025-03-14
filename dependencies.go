@@ -23,8 +23,8 @@ func (d *Dependencies) Run() error {
 	database := core.NewDatabase()
 
 	cajasDatabase := cajasInfrastructure.NewMySQL(database.Conn)
-	getAllUseCase := cajasUseCases.NewGetAllUseCase(cajasDatabase)
-	getAllController := cajasControllers.NewGetAllController(getAllUseCase)
+	getAllUseCase := cajasUseCases.NewGetAllCajaUseCase(cajasDatabase)
+	getAllController := cajasControllers.NewGetAllCajaController(getAllUseCase)
 	createCajaUseCase := cajasUseCases.NewCreateCajaUseCase(cajasDatabase)
 	createCajaController := cajasControllers.NewCreateCajaController(createCajaUseCase)
 	cajasRoutes := cajasInfrastructure.NewCajasRoutes(d.engine, getAllController, createCajaController)

@@ -6,7 +6,7 @@ type DeleteCajaUseCase struct {
 	cajaRepository domain.ICaja
 }
 
-func NewDeleteOrderUseCase(caja domain.ICaja) *DeleteCajaUseCase {
+func NewDeleteCajaUseCase(caja domain.ICaja) *DeleteCajaUseCase {
 	return &DeleteCajaUseCase{cajaRepository: caja}
 }
 
