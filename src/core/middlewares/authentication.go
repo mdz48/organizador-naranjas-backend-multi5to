@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"fmt"
+	"organizador-naranjas-backend-multi5to/src/features/users/domain/entities"
 	"os"
 	"time"
 
@@ -11,10 +11,10 @@ import (
 
 var secretKey = []byte(os.Getenv("SECRET_KEY"))
 
-func GenerateToken(name, rol string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
-		"name": name,
-		"rol": rol,
+func GenerateToken(user *entities.User) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"name": user.Name,
+		"rol": user.Rol,
 		"exp": time.Now().Add(time.Hour * 24).Unix(), 
 	})
 
@@ -25,22 +25,6 @@ func GenerateToken(name, rol string) (string, error) {
 	}
 
 	return tokenString, err; 
-}
-
-func VerifyToken(tokenString string) error {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return secretKey, nil
-	})
-
-	if err != nil {
-		return err; 
-	}
-
-	if !token.Valid {
-		return fmt.Errorf("token invalid!"); 
-	}
-
-	return nil;
 }
 
 func VerifyPassword(password, hashPassword string) error {
