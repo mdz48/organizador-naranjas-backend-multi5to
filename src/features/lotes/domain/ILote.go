@@ -5,6 +5,6 @@ type ILote interface {
 	GetAll() ([]Lote, error)
 	GetById(id int) (Lote, error)
 	Delete(id int) error
-	Update(lote Lote) (Lote, error)
+	Update(id int, lote Lote) (Lote, error)
 	GetByDate(date string) ([]Lote, error)
 }

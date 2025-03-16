@@ -8,6 +8,11 @@ import (
 	cajasInfrastructure "organizador-naranjas-backend-multi5to/src/features/cajas/infrastructure"
 	cajasControllers "organizador-naranjas-backend-multi5to/src/features/cajas/infrastructure/controllers"
 
+	
+	lotesUseCases "organizador-naranjas-backend-multi5to/src/features/lotes/application"
+	lotesInfrastructure "organizador-naranjas-backend-multi5to/src/features/lotes/infrastructure"
+	lotesControllers "organizador-naranjas-backend-multi5to/src/features/lotes/infrastructure/controllers"
+
 	naranjasInfrastructure "organizador-naranjas-backend-multi5to/src/features/naranjas/infrastructure"
     naranjasUseCases "organizador-naranjas-backend-multi5to/src/features/naranjas/application"
 	naranjasControllers "organizador-naranjas-backend-multi5to/src/features/naranjas/infrastructure/controllers"
@@ -53,9 +58,25 @@ func (d *Dependencies) Run() error {
 	logInController := usersControllers.NewLoginController(logInUser);
 	userRoutes := usersInfrastructure.NewUserRoutes(d.engine, createUserController, logInController); 
 
+	lotesDatabase := lotesInfrastructure.NewMySQL(database.Conn);
+	createLoteUseCase := lotesUseCases.NewCreateLoteUseCase(lotesDatabase);
+	listAllLotesUseCase := lotesUseCases.NewListLotesUseCase(lotesDatabase);
+	listLoteIdUseCase := lotesUseCases.NewListLoteIdUseCase(lotesDatabase);
+	listLoteDateUseCase := lotesUseCases.NewListLoteDateUseCase(lotesDatabase);
+	deleteLoteUseCase := lotesUseCases.NewRemoveLoteUseCase(lotesDatabase);
+	updateLoteUseCase := lotesUseCases.NewUpdateLoteUseCase(lotesDatabase); 
+	createLoteController := lotesControllers.NewCreateLoteController(createLoteUseCase);
+	listAllLotesController := lotesControllers.NewGetAllLotesController(listAllLotesUseCase); 
+	listLoteIdController := lotesControllers.NewListLoteIdController(listLoteIdUseCase);
+	listLoteDateController := lotesControllers.NewListLoteDateController(listLoteDateUseCase) 
+	deleteLoteController := lotesControllers.NewDeleteLoteController(deleteLoteUseCase);
+	updateLoteControlerr := lotesControllers.NewUpdateLoteController(updateLoteUseCase); 
+	lotesRoutes := lotesInfrastructure.NewLotesRoutes(d.engine, createLoteController, listAllLotesController, listLoteIdController, listLoteDateController, deleteLoteController, updateLoteControlerr)
+
 	cajasRoutes.SetupRoutes()
 	naranjasRoutes.SetupRoutes();
 	userRoutes.SetupRoutes(); 
+	lotesRoutes.SetupRoutes(); 
 
 	return d.engine.Run(":8080")
 }
