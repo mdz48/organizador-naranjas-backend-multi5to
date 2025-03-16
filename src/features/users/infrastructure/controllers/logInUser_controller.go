@@ -24,36 +24,28 @@ func (ctr *LogInController) Run(ctx *gin.Context) {
 	var userLog *entities.UserLogIn
 
 	if err := ctx.ShouldBindJSON(&userLog); err != nil {
-		ctx.JSON(400, err);
-		return; 
+		ctx.JSON(400, err)
+		return
 	}
-	
-
-	user, err := ctr.uc.Run(userLog);
-
-	fmt.Printf("user: %s", userLog); 
-
+	user, err := ctr.uc.Run(userLog)
+	fmt.Printf("user: %s", userLog)
 	if err != nil {
 		ctx.JSON(500, err)
-		return; 
+		return
 	}
-
-	errCompare := middlewares.VerifyPassword(userLog.Password, user.Password);
-
+	errCompare := middlewares.VerifyPassword(userLog.Password, user.Password)
 	if errCompare != nil {
 		ctx.JSON(400, err)
-		return; 		
+		return
 	}
-
-	token, errToken := middlewares.GenerateToken(user);
-
+	token, errToken := middlewares.GenerateToken(user)
 	if errToken != nil {
-		log.Printf("error %s", errToken);
+		log.Printf("error %s", errToken)
 		ctx.JSON(400, errToken)
-		return; 
+		return
 	}
 
 	ctx.JSON(201, gin.H{
 		"token": token,
-	}); 
+	})
 }

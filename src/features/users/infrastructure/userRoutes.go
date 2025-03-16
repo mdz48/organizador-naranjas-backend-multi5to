@@ -1,22 +1,25 @@
 package infrastructure
 
 import (
-	"organizador-naranjas-backend-multi5to/src/features/users/infrastructure/controllers"
-
 	"github.com/gin-gonic/gin"
+	"organizador-naranjas-backend-multi5to/src/features/users/infrastructure/controllers"
 )
 
 type UserRoutes struct {
-	engine *gin.Engine
+	engine               *gin.Engine
 	createUserController *controllers.CreateUserController
-	logInController *controllers.LogInController
+	logInController      *controllers.LogInController
+	updateUserController *controllers.UpdateUserController
+	deleteUserController *controllers.DeleteUserController
 }
 
-func NewUserRoutes(engine *gin.Engine, createUserController *controllers.CreateUserController, logInController *controllers.LogInController) *UserRoutes {
+func NewUserRoutes(engine *gin.Engine, createUserController *controllers.CreateUserController, logInController *controllers.LogInController, updateUserController *controllers.UpdateUserController, deleteUserController *controllers.DeleteUserController) *UserRoutes {
 	return &UserRoutes{
-		engine: engine,
+		engine:               engine,
 		createUserController: createUserController,
-		logInController: logInController,
+		logInController:      logInController,
+		updateUserController: updateUserController,
+		deleteUserController: deleteUserController,
 	}
 }
 
@@ -24,14 +27,16 @@ func (routes *UserRoutes) SetupRoutes() {
 	userRoutes := routes.engine.Group("/users")
 	{
 		userRoutes.POST("/", routes.createUserController.Run)
-		userRoutes.POST("/auth/login", routes.logInController.Run)
+		userRoutes.POST("/login", routes.logInController.Run)
+		userRoutes.PUT("/:id", routes.updateUserController.Run)
+		userRoutes.DELETE("/:id", routes.deleteUserController.Run)
 	}
 }
 
 func (routes *UserRoutes) Run() error {
 	if err := routes.engine.Run(); err != nil {
-		return err;
+		return err
 	}
 
-	return nil; 
+	return nil
 }
