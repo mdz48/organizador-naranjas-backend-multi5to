@@ -23,7 +23,7 @@ func (c *CreateCajaController) Create(ctx *gin.Context) {
 
 	cajaCreada, err := c.createCajaService.Execute(caja)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": "Error creating caja"})
+		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(201, cajaCreada)

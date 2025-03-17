@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"organizador-naranjas-backend-multi5to/src/core"
 
@@ -75,6 +76,14 @@ func (d *Dependencies) Run() error {
 	deleteLoteController := lotesControllers.NewDeleteLoteController(deleteLoteUseCase)
 	updateLoteControlerr := lotesControllers.NewUpdateLoteController(updateLoteUseCase)
 	lotesRoutes := lotesInfrastructure.NewLotesRoutes(d.engine, createLoteController, listAllLotesController, listLoteIdController, listLoteDateController, deleteLoteController, updateLoteControlerr)
+
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://localhost:5173"}
+	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.ExposeHeaders = []string{"Content-Length"}
+	config.AllowCredentials = true
+	d.engine.Use(cors.New(config))
 
 	cajasRoutes.SetupRoutes()
 	naranjasRoutes.SetupRoutes()
