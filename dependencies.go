@@ -40,7 +40,11 @@ func (d *Dependencies) Run() error {
 	getAllController := cajasControllers.NewGetAllCajaController(getAllUseCase)
 	createCajaUseCase := cajasUseCases.NewCreateCajaUseCase(cajasDatabase)
 	createCajaController := cajasControllers.NewCreateCajaController(createCajaUseCase)
-	cajasRoutes := cajasInfrastructure.NewCajasRoutes(d.engine, getAllController, createCajaController)
+	updateCajasUseCase := cajasUseCases.NewUpdateCajaUseCase(cajasDatabase)
+	updateCajasController := cajasControllers.NewUpdateCajaController(updateCajasUseCase)
+	deleteCajasUseCase := cajasUseCases.NewDeleteCajaUseCase(cajasDatabase)
+	deleteCajasController := cajasControllers.NewDeleteCajaController(deleteCajasUseCase)
+	cajasRoutes := cajasInfrastructure.NewCajasRoutes(d.engine, getAllController, createCajaController, updateCajasController, deleteCajasController)
 
 	naranjaDatabase := naranjasInfrastructure.NewMySQL(database.Conn)
 	createNaranjaUseCase := naranjasUseCases.NewCreateCajaUseCase(naranjaDatabase)

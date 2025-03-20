@@ -30,12 +30,12 @@ func (ctr *LogInController) Run(ctx *gin.Context) {
 	user, err := ctr.uc.Run(userLog)
 	fmt.Printf("user: %s", userLog)
 	if err != nil {
-		ctx.JSON(500, err)
+		ctx.JSON(401, err)
 		return
 	}
 	errCompare := middlewares.VerifyPassword(userLog.Password, user.Password)
 	if errCompare != nil {
-		ctx.JSON(400, err)
+		ctx.JSON(401, err)
 		return
 	}
 	token, errToken := middlewares.GenerateToken(user)

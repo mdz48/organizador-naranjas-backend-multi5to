@@ -9,13 +9,17 @@ type CajasRoutes struct {
 	engine               *gin.Engine
 	getAllController     *controllers.GetAllController
 	createCajaController *controllers.CreateCajaController
+	updateCajaController *controllers.UpdateController
+	deleteCajaController *controllers.DeleteCajaController
 }
 
-func NewCajasRoutes(engine *gin.Engine, getAllController *controllers.GetAllController, createCajaController *controllers.CreateCajaController) *CajasRoutes {
+func NewCajasRoutes(engine *gin.Engine, getAllController *controllers.GetAllController, createCajaController *controllers.CreateCajaController, updateCajaController *controllers.UpdateController, deleteCajaController *controllers.DeleteCajaController) *CajasRoutes {
 	return &CajasRoutes{
 		engine:               engine,
 		getAllController:     getAllController,
 		createCajaController: createCajaController,
+		updateCajaController: updateCajaController,
+		deleteCajaController: deleteCajaController,
 	}
 }
 
@@ -24,6 +28,8 @@ func (r *CajasRoutes) SetupRoutes() {
 	{
 		cajas.GET("/", r.getAllController.GetAll)
 		cajas.POST("/", r.createCajaController.Create)
+		cajas.PUT("/:id", r.updateCajaController.Update)
+		cajas.DELETE("/:id", r.deleteCajaController.Delete)
 	}
 }
 

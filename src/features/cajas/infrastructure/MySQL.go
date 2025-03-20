@@ -122,7 +122,7 @@ func (m *MySQL) Delete(id int) error {
 	}
 
 	if rowsAffected == 0 {
-		return errors.New("no record found to delete")
+		return errors.New("no se encontró el ID")
 	}
 
 	return nil

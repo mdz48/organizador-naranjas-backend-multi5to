@@ -1,9 +1,11 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
 	"organizador-naranjas-backend-multi5to/src/features/cajas/application"
 	"organizador-naranjas-backend-multi5to/src/features/cajas/domain"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type UpdateController struct {
@@ -15,16 +17,25 @@ func NewUpdateCajaController(updateCaja *application.UpdateCajaUseCase) *UpdateC
 }
 
 func (c *UpdateController) Update(ctx *gin.Context) {
-	var caja domain.Caja
-	if err := ctx.ShouldBindJSON(&caja); err != nil {
-		ctx.JSON(400, gin.H{"error": "Invalid input"})
+	idStr := ctx.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		ctx.JSON(400, gin.H{"error": "Invalid caja ID"})
 		return
 	}
 
-	cajaEditada, err := c.updateService.Execute(caja)
-	if err != nil {
-		ctx.JSON(500, gin.H{"error": "Error updating caja"})
+	var caja domain.Caja
+	if err := ctx.ShouldBindJSON(&caja); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(201, cajaEditada)
+
+	caja.ID = int(id)
+	updatedCaja, errUpdate := c.updateService.Execute(caja)
+	if errUpdate != nil {
+		ctx.JSON(500, gin.H{"error": errUpdate.Error()})
+		return
+	}
+
+	ctx.JSON(200, updatedCaja)
 }

@@ -12,8 +12,5 @@ func NewDeleteCajaUseCase(caja domain.ICaja) *DeleteCajaUseCase {
 
 func (d *DeleteCajaUseCase) Execute(id int) error {
 	err := d.cajaRepository.Delete(id)
-	if err != nil {
-		return nil
-	}
 	return err
 }
