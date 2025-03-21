@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"log"
 	"organizador-naranjas-backend-multi5to/src/core/middlewares"
 	"organizador-naranjas-backend-multi5to/src/features/users/application"
@@ -21,31 +20,35 @@ func NewLoginController(uc *application.LogInUseCase) *LogInController {
 }
 
 func (ctr *LogInController) Run(ctx *gin.Context) {
-	var userLog *entities.UserLogIn
+	var userLog entities.UserLogIn
 
 	if err := ctx.ShouldBindJSON(&userLog); err != nil {
-		ctx.JSON(400, err)
-		return
-	}
-	user, err := ctr.uc.Run(userLog)
-	fmt.Printf("user: %s", userLog)
-	if err != nil {
-		ctx.JSON(401, err)
-		return
-	}
-	errCompare := middlewares.VerifyPassword(userLog.Password, user.Password)
-	if errCompare != nil {
-		ctx.JSON(401, err)
-		return
-	}
-	token, errToken := middlewares.GenerateToken(user)
-	if errToken != nil {
-		log.Printf("error %s", errToken)
-		ctx.JSON(400, errToken)
+		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(201, gin.H{
+	// Ejecutar el caso de uso para obtener los claims
+	claims, err := ctr.uc.Run(&userLog)
+	if err != nil {
+		ctx.JSON(401, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Generar el token a partir de los claims
+	token, errToken := middlewares.GenerateTokenFromClaims(claims)
+	if errToken != nil {
+		log.Printf("error: %s", errToken)
+		ctx.JSON(500, gin.H{"error": "Error generating token"})
+		return
+	}
+
+	// Retornar token y claims en la respuesta
+	ctx.JSON(200, gin.H{
 		"token": token,
+		"user": gin.H{
+			"name":     claims.Name,
+			"username": claims.Username,
+			"rol":      claims.Rol,
+		},
 	})
 }

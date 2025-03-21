@@ -1,7 +1,9 @@
 package application
 
 import (
+	"errors"
 	"fmt"
+	"organizador-naranjas-backend-multi5to/src/core/middlewares"
 	"organizador-naranjas-backend-multi5to/src/features/users/domain"
 	"organizador-naranjas-backend-multi5to/src/features/users/domain/entities"
 )
@@ -16,13 +18,27 @@ func NewLogInUseCase(userRepository domain.IUser) *LogInUseCase {
 	}
 }
 
-func (uc *LogInUseCase) Run(userLog *entities.UserLogIn) (*entities.User, error) {
-	fmt.Printf("user: %s", userLog);
-	loged, errLoged := uc.userRepository.LogIn(userLog);
+func (uc *LogInUseCase) Run(userLog *entities.UserLogIn) (*entities.Claims, error) {
+	fmt.Printf("user: %v\n", userLog)
 
-	if errLoged != nil {
-		return &entities.User{}, errLoged; 
+	// Obtener el usuario de la base de datos
+	user, err := uc.userRepository.LogIn(userLog)
+	if err != nil {
+		return nil, err
 	}
 
-	return loged, errLoged; 
+	// Verificar la contraseña
+	err = middlewares.VerifyPassword(userLog.Password, user.Password)
+	if err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	// Crear los claims
+	claims := &entities.Claims{
+		Username: user.Username,
+		Name:     user.Name,
+		Rol:      user.Rol,
+	}
+
+	return claims, nil
 }

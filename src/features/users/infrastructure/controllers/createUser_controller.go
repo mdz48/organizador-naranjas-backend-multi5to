@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"organizador-naranjas-backend-multi5to/src/core/middlewares"
 	"organizador-naranjas-backend-multi5to/src/features/users/application"
 	"organizador-naranjas-backend-multi5to/src/features/users/domain/entities"
 
@@ -19,22 +18,17 @@ func NewCreateUserController(uc *application.SaveUserUseCase) *CreateUserControl
 }
 
 func (ctr *CreateUserController) Run(ctx *gin.Context) {
-	var user *entities.User
+	var user entities.User
 	if err := ctx.ShouldBindJSON(&user); err != nil {
-		ctx.JSON(400, err)
+		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	hashPassword, errHashPassword := middlewares.HashPassword(user.Password)
-	if errHashPassword != nil {
-		ctx.JSON(400, errHashPassword)
+	userResponse, err := ctr.uc.Run(&user)
+	if err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	user.Password = hashPassword
-	user, errCreate := ctr.uc.Run(user)
-	if errCreate != nil {
-		ctx.JSON(500, errCreate)
-		return
-	}
-	ctx.JSON(201, user)
+
+	ctx.JSON(200, userResponse)
 }

@@ -11,12 +11,6 @@ type UpdateUserUseCase struct {
 
 func NewUpdateUserUseCase(db domain.IUser) *UpdateUserUseCase { return &UpdateUserUseCase{db: db} }
 
-func (uc *UpdateUserUseCase) Run(user *entities.User) (*entities.User, error) {
-	user, err := uc.db.Update(user)
-
-	if err != nil {
-		return &entities.User{}, err
-	}
-
-	return user, err
+func (uc *UpdateUserUseCase) Run(user *entities.User) (*entities.UserResponse, error) {
+	return uc.db.Update(user)
 }

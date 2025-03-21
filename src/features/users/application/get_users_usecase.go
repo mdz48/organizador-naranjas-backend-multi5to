@@ -5,16 +5,17 @@ import (
 	"organizador-naranjas-backend-multi5to/src/features/users/domain/entities"
 )
 
-type SaveUserUseCase struct {
+type GetUsersUseCase struct {
 	userRepository domain.IUser
 }
 
-func NewSaveUser(userRepository domain.IUser) *SaveUserUseCase {
-	return &SaveUserUseCase{
+func NewGetUsersUseCase(userRepository domain.IUser) *GetUsersUseCase {
+	return &GetUsersUseCase{
 		userRepository: userRepository,
 	}
 }
 
-func (uc *SaveUserUseCase) Run(user *entities.User) (*entities.UserResponse, error) {
-	return uc.userRepository.Save(user)
+func (uc *GetUsersUseCase) GetAll() ([]entities.UserResponse, error) {
+	return uc.userRepository.GetAll()
 }
+

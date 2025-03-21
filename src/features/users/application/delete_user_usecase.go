@@ -11,12 +11,6 @@ type DeleteUserUseCase struct {
 
 func NewDeleteUserUseCase(db domain.IUser) *DeleteUserUseCase { return &DeleteUserUseCase{db: db} }
 
-func (uc *DeleteUserUseCase) Run(user *entities.User) (*entities.User, error) {
-	user, err := uc.db.Delete(user)
-
-	if err != nil {
-		return &entities.User{}, err
-	}
-
-	return user, err
+func (uc *DeleteUserUseCase) Run(user *entities.User) (*entities.UserResponse, error) {
+	return uc.db.Delete(user)
 }

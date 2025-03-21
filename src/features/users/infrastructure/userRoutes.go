@@ -11,15 +11,21 @@ type UserRoutes struct {
 	logInController      *controllers.LogInController
 	updateUserController *controllers.UpdateUserController
 	deleteUserController *controllers.DeleteUserController
+	getByIdController   *controllers.GetUserByIdController
+	getByUsernameController *controllers.GetByUsernameController
+	getUsersController *controllers.GetUsersController
 }
 
-func NewUserRoutes(engine *gin.Engine, createUserController *controllers.CreateUserController, logInController *controllers.LogInController, updateUserController *controllers.UpdateUserController, deleteUserController *controllers.DeleteUserController) *UserRoutes {
+func NewUserRoutes(engine *gin.Engine, createUserController *controllers.CreateUserController, logInController *controllers.LogInController, updateUserController *controllers.UpdateUserController, deleteUserController *controllers.DeleteUserController, getByIdController   *controllers.GetUserByIdController, getByUsernameController *controllers.GetByUsernameController, getUsersController *controllers.GetUsersController) *UserRoutes {
 	return &UserRoutes{
 		engine:               engine,
 		createUserController: createUserController,
 		logInController:      logInController,
 		updateUserController: updateUserController,
 		deleteUserController: deleteUserController,
+		getByIdController:   getByIdController,
+		getByUsernameController: getByUsernameController,
+		getUsersController: getUsersController,
 	}
 }
 
@@ -30,6 +36,9 @@ func (routes *UserRoutes) SetupRoutes() {
 		userRoutes.POST("/login", routes.logInController.Run)
 		userRoutes.PUT("/:id", routes.updateUserController.Run)
 		userRoutes.DELETE("/:id", routes.deleteUserController.Run)
+		userRoutes.GET("/:id", routes.getByIdController.Run)
+		userRoutes.GET("/username/:username", routes.getByUsernameController.Run)
+		userRoutes.GET("/", routes.getUsersController.Run)
 	}
 }
 
