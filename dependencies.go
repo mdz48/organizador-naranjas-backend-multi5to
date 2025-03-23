@@ -1,9 +1,11 @@
 package main
 
 import (
+	"log"
+	"organizador-naranjas-backend-multi5to/src/core"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"organizador-naranjas-backend-multi5to/src/core"
 
 	cajasUseCases "organizador-naranjas-backend-multi5to/src/features/cajas/application"
 	cajasInfrastructure "organizador-naranjas-backend-multi5to/src/features/cajas/infrastructure"
@@ -40,6 +42,15 @@ func NewDependencies() *Dependencies {
 func (d *Dependencies) Run() error {
 	database := core.NewDatabase()
 
+	// Inicializar RabbitMQ
+	rabbitMQ, err := core.NewRabbitMQ()
+	if err != nil {
+		log.Printf("Advertencia: No se pudo conectar a RabbitMQ: %v", err)
+		// Continuamos sin RabbitMQ, no es fatal
+	} else {
+		defer rabbitMQ.Close()
+	}
+
 	cajasDatabase := cajasInfrastructure.NewMySQL(database.Conn)
 	getAllUseCase := cajasUseCases.NewGetAllCajaUseCase(cajasDatabase)
 	getAllController := cajasControllers.NewGetAllCajaController(getAllUseCase)
@@ -51,14 +62,23 @@ func (d *Dependencies) Run() error {
 	deleteCajasController := cajasControllers.NewDeleteCajaController(deleteCajasUseCase)
 	cajasRoutes := cajasInfrastructure.NewCajasRoutes(d.engine, getAllController, createCajaController, updateCajasController, deleteCajasController)
 
+	var naranjaProducer *naranjasInfrastructure.Producer
+	if rabbitMQ != nil {
+		naranjaProducer = naranjasInfrastructure.NewProducer(rabbitMQ)
+	}
+
 	naranjaDatabase := naranjasInfrastructure.NewMySQL(database.Conn)
-	createNaranjaUseCase := naranjasUseCases.NewCreateCajaUseCase(naranjaDatabase)
+	createNaranjaUseCase := naranjasUseCases.NewCreateNaranjaUseCase(naranjaDatabase, naranjaProducer)
 	createNaranjaController := naranjasControllers.NewCreateNaranjaController(createNaranjaUseCase)
 	getAllNaranjaUseCase := naranjasUseCases.NewGetAllUseCase(naranjaDatabase)
 	getAllNaranjasController := naranjasControllers.NewGetAllController(getAllNaranjaUseCase)
 	updateNaranjaUseCase := naranjasUseCases.NewUpdateNaranjaUseCase(naranjaDatabase)
 	updateContollers := naranjasControllers.NewUpdateNaranjaController(updateNaranjaUseCase)
-	naranjasRoutes := naranjasInfrastructure.NewNaranjasRoutes(d.engine, createNaranjaController, getAllNaranjasController, updateContollers)
+	getByCajaNaranjaUseCase := naranjasUseCases.NewGetByCajaNaranjaUseCase(naranjaDatabase)
+	getByCajaNaranjaController := naranjasControllers.NewGetByCajaNaranjaController(getByCajaNaranjaUseCase)
+	getByEsp32NaranjaUseCase := naranjasUseCases.NewGetByEsp32NaranjaUseCase(naranjaDatabase)
+	getByEsp32NaranjaController := naranjasControllers.NewGetByEsp32NaranjaController(getByEsp32NaranjaUseCase)
+	naranjasRoutes := naranjasInfrastructure.NewNaranjasRoutes(d.engine, createNaranjaController, getAllNaranjasController, updateContollers, getByEsp32NaranjaController, getByCajaNaranjaController)
 
 	userDataBase := usersInfrastructure.NewMysql(database.Conn)
 	createUser := usersUseCases.NewSaveUser(userDataBase)

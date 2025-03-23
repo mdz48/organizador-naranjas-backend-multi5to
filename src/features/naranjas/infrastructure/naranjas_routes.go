@@ -11,10 +11,12 @@ type NaranjasRoutes struct {
 	createNaranjaController *controllers.CreateNaranjaController
 	getNaranjaController    *controllers.GetAllNaranjaController
 	updateContollers        *controllers.UpdateNaranjaController
+	getByEsp32NaranjaController *controllers.GetByEsp32NaranjaController
+	getByCajaNaranjaController *controllers.GetByCajaNaranjaController
 }
 
-func NewNaranjasRoutes(engine *gin.Engine, createNaranjaController *controllers.CreateNaranjaController, getNaranjaController *controllers.GetAllNaranjaController, updateContollers *controllers.UpdateNaranjaController) *NaranjasRoutes {
-	return &NaranjasRoutes{engine: engine, createNaranjaController: createNaranjaController, getNaranjaController: getNaranjaController, updateContollers: updateContollers}
+func NewNaranjasRoutes(engine *gin.Engine, createNaranjaController *controllers.CreateNaranjaController, getNaranjaController *controllers.GetAllNaranjaController, updateContollers *controllers.UpdateNaranjaController, getByEsp32NaranjaController *controllers.GetByEsp32NaranjaController, getByCajaNaranjaController *controllers.GetByCajaNaranjaController) *NaranjasRoutes {
+	return &NaranjasRoutes{engine: engine, createNaranjaController: createNaranjaController, getNaranjaController: getNaranjaController, updateContollers: updateContollers, getByEsp32NaranjaController: getByEsp32NaranjaController, getByCajaNaranjaController: getByCajaNaranjaController}
 }
 
 func (r *NaranjasRoutes) SetupRoutes() {
@@ -23,6 +25,8 @@ func (r *NaranjasRoutes) SetupRoutes() {
 		naranjas.GET("/", r.getNaranjaController.GetAll)
 		naranjas.POST("/", r.createNaranjaController.Create)
 		naranjas.PUT("/:id", r.updateContollers.Update)
+		naranjas.GET("/esp32/:esp32Id", r.getByEsp32NaranjaController.GetByEsp32)
+		naranjas.GET("/caja/:id", r.getByCajaNaranjaController.Handle)
 	}
 }
 

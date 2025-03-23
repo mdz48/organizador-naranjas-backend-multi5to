@@ -15,13 +15,13 @@ func NewMySQL(db *sql.DB) *MySQL {
 }
 
 func (m *MySQL) Create(naranja domain.Naranja) (domain.Naranja, error) {
-	result, err := m.db.Prepare("INSERT INTO naranjas (peso, tamano, color, hora, caja_fk) VALUES (?, ?, ?, ?, ?)")
+	result, err := m.db.Prepare("INSERT INTO naranjas (peso, tamano, color, hora, caja_fk, esp32_fk) VALUES (?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return domain.Naranja{}, err
 	}
 	defer result.Close()
 
-	res, err := result.Exec(naranja.Peso, naranja.Tamaño, naranja.Color, naranja.Hora, naranja.CajaFK)
+	res, err := result.Exec(naranja.Peso, naranja.Tamaño, naranja.Color, naranja.Hora, naranja.CajaFK, naranja.Esp32FK)
 	if err != nil {
 		return domain.Naranja{}, err
 	}
@@ -38,8 +38,8 @@ func (m *MySQL) Create(naranja domain.Naranja) (domain.Naranja, error) {
 func (m *MySQL) GetById(id int) (domain.Naranja, error) {
 	var naranja domain.Naranja
 
-	err := m.db.QueryRow("SELECT id, peso, tamaño, color, hora, caja_fk FROM naranjas WHERE id = ?", id).
-		Scan(&naranja.ID, &naranja.Peso, &naranja.Tamaño, &naranja.Color, &naranja.Hora, &naranja.CajaFK)
+	err := m.db.QueryRow("SELECT id, peso, tamaño, color, hora, caja_fk, esp32_fk FROM naranjas WHERE id = ?", id).
+		Scan(&naranja.ID, &naranja.Peso, &naranja.Tamaño, &naranja.Color, &naranja.Hora, &naranja.CajaFK, &naranja.Esp32FK)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -52,7 +52,7 @@ func (m *MySQL) GetById(id int) (domain.Naranja, error) {
 }
 
 func (m *MySQL) GetByCaja(cajaId int) ([]domain.Naranja, error) {
-	rows, err := m.db.Query("SELECT id, peso, tamaño, color, hora, caja_fk FROM naranjas WHERE caja_fk = ?", cajaId)
+	rows, err := m.db.Query("SELECT id, peso, tamaño, color, hora, caja_fk, esp32_fk FROM naranjas WHERE caja_fk = ?", cajaId)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (m *MySQL) GetByCaja(cajaId int) ([]domain.Naranja, error) {
 	var naranjas []domain.Naranja
 	for rows.Next() {
 		var naranja domain.Naranja
-		if err := rows.Scan(&naranja.ID, &naranja.Peso, &naranja.Tamaño, &naranja.Color, &naranja.Hora, &naranja.CajaFK); err != nil {
+		if err := rows.Scan(&naranja.ID, &naranja.Peso, &naranja.Tamaño, &naranja.Color, &naranja.Hora, &naranja.CajaFK, &naranja.Esp32FK); err != nil {
 			return nil, err
 		}
 		naranjas = append(naranjas, naranja)
@@ -75,7 +75,7 @@ func (m *MySQL) GetByCaja(cajaId int) ([]domain.Naranja, error) {
 }
 
 func (m *MySQL) GetAll() ([]domain.Naranja, error) {
-	rows, err := m.db.Query("SELECT id, peso, tamaño, color, hora, caja_fk FROM naranjas")
+	rows, err := m.db.Query("SELECT id, peso, tamaño, color, hora, caja_fk, esp32_fk FROM naranjas")
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (m *MySQL) GetAll() ([]domain.Naranja, error) {
 	var naranjas []domain.Naranja
 	for rows.Next() {
 		var naranja domain.Naranja
-		if err := rows.Scan(&naranja.ID, &naranja.Peso, &naranja.Tamaño, &naranja.Color, &naranja.Hora, &naranja.CajaFK); err != nil {
+		if err := rows.Scan(&naranja.ID, &naranja.Peso, &naranja.Tamaño, &naranja.Color, &naranja.Hora, &naranja.CajaFK, &naranja.Esp32FK); err != nil {
 			return nil, err
 		}
 		naranjas = append(naranjas, naranja)
@@ -98,13 +98,13 @@ func (m *MySQL) GetAll() ([]domain.Naranja, error) {
 }
 
 func (m *MySQL) Update(naranja domain.Naranja) (domain.Naranja, error) {
-	stmt, err := m.db.Prepare("UPDATE naranjas SET peso = ?, tamaño = ?, color = ?, hora = ?, caja_fk = ? WHERE id = ?")
+	stmt, err := m.db.Prepare("UPDATE naranjas SET peso = ?, tamaño = ?, color = ?, hora = ?, caja_fk = ?, esp32_fk = ? WHERE id = ?")
 	if err != nil {
 		return domain.Naranja{}, err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(naranja.Peso, naranja.Tamaño, naranja.Color, naranja.Hora, naranja.CajaFK, naranja.ID)
+	_, err = stmt.Exec(naranja.Peso, naranja.Tamaño, naranja.Color, naranja.Hora, naranja.CajaFK, naranja.Esp32FK, naranja.ID)
 	if err != nil {
 		return domain.Naranja{}, err
 	}
@@ -134,4 +134,27 @@ func (m *MySQL) Delete(id int) error {
 	}
 
 	return nil
+}
+
+func (m *MySQL) GetByEsp32(esp32Id string) ([]domain.Naranja, error) {
+	rows, err := m.db.Query("SELECT id, peso, tamaño, color, hora, caja_fk, esp32_fk FROM naranjas WHERE esp32_fk = ?", esp32Id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var naranjas []domain.Naranja
+	for rows.Next() {
+		var naranja domain.Naranja
+		if err := rows.Scan(&naranja.ID, &naranja.Peso, &naranja.Tamaño, &naranja.Color, &naranja.Hora, &naranja.CajaFK, &naranja.Esp32FK); err != nil {
+			return nil, err
+		}
+		naranjas = append(naranjas, naranja)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return naranjas, nil
 }
