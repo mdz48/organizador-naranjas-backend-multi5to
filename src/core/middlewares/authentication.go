@@ -17,6 +17,7 @@ func GenerateToken(user *entities.User) (string, error) {
 		Username: user.Username,
 		Rol:      user.Rol,
 		Name:     user.Name,
+		Id_jefe: user.Id_jefe,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		},

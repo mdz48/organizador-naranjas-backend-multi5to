@@ -20,6 +20,11 @@ import (
 	usersUseCases "organizador-naranjas-backend-multi5to/src/features/users/application"
 	usersInfrastructure "organizador-naranjas-backend-multi5to/src/features/users/infrastructure"
 	usersControllers "organizador-naranjas-backend-multi5to/src/features/users/infrastructure/controllers"
+
+	sp32UseCases "organizador-naranjas-backend-multi5to/src/features/sp32/application"
+	sp32Infrastructure "organizador-naranjas-backend-multi5to/src/features/sp32/infrastructure"
+	sp32Adapters "organizador-naranjas-backend-multi5to/src/features/sp32/infrastructure/adapters"
+	sp32Controllers "organizador-naranjas-backend-multi5to/src/features/sp32/infrastructure/controllers"
 )
 
 type Dependencies struct {
@@ -87,6 +92,11 @@ func (d *Dependencies) Run() error {
 	updateLoteControlerr := lotesControllers.NewUpdateLoteController(updateLoteUseCase)
 	lotesRoutes := lotesInfrastructure.NewLotesRoutes(d.engine, createLoteController, listAllLotesController, listLoteIdController, listLoteDateController, deleteLoteController, updateLoteControlerr)
 
+	sp32Mysql := sp32Adapters.NewMysql(database.Conn)
+	saveSp32UseCase := sp32UseCases.NewSaveSp32(sp32Mysql)
+	createSp32Controller := sp32Controllers.NewCreateSp32Controller(saveSp32UseCase)
+	sp32Routes := sp32Infrastructure.NewSp32Routes(d.engine.RouterGroup,createSp32Controller)
+
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"http://localhost:5173"}
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
@@ -96,9 +106,10 @@ func (d *Dependencies) Run() error {
 	d.engine.Use(cors.New(config))
 
 	cajasRoutes.SetupRoutes()
+	sp32Routes.Run()
 	naranjasRoutes.SetupRoutes()
 	userRoutes.SetupRoutes()
 	lotesRoutes.SetupRoutes()
 
-	return d.engine.Run(":8080")
+	return d.engine.Run(":8082")
 }
