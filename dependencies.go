@@ -21,10 +21,10 @@ import (
 	usersInfrastructure "organizador-naranjas-backend-multi5to/src/features/users/infrastructure"
 	usersControllers "organizador-naranjas-backend-multi5to/src/features/users/infrastructure/controllers"
 
-	sp32UseCases "organizador-naranjas-backend-multi5to/src/features/sp32/application"
-	sp32Infrastructure "organizador-naranjas-backend-multi5to/src/features/sp32/infrastructure"
-	sp32Adapters "organizador-naranjas-backend-multi5to/src/features/sp32/infrastructure/adapters"
-	sp32Controllers "organizador-naranjas-backend-multi5to/src/features/sp32/infrastructure/controllers"
+	esp32UseCases "organizador-naranjas-backend-multi5to/src/features/esp32/application"
+	esp32Infrastructure "organizador-naranjas-backend-multi5to/src/features/esp32/infrastructure"
+	esp32Adapter "organizador-naranjas-backend-multi5to/src/features/esp32/infrastructure/adapters"
+	esp32Controllers "organizador-naranjas-backend-multi5to/src/features/esp32/infrastructure/controllers"
 )
 
 type Dependencies struct {
@@ -92,10 +92,14 @@ func (d *Dependencies) Run() error {
 	updateLoteControlerr := lotesControllers.NewUpdateLoteController(updateLoteUseCase)
 	lotesRoutes := lotesInfrastructure.NewLotesRoutes(d.engine, createLoteController, listAllLotesController, listLoteIdController, listLoteDateController, deleteLoteController, updateLoteControlerr)
 
-	sp32Mysql := sp32Adapters.NewMysql(database.Conn)
-	saveSp32UseCase := sp32UseCases.NewSaveSp32(sp32Mysql)
-	createSp32Controller := sp32Controllers.NewCreateSp32Controller(saveSp32UseCase)
-	sp32Routes := sp32Infrastructure.NewSp32Routes(d.engine.RouterGroup,createSp32Controller)
+	esp32Database := esp32Adapter.NewMysql(database.Conn)
+	createEsp32UseCase := esp32UseCases.NewSaveEsp32(esp32Database)
+	createEsp32Controller := esp32Controllers.NewCreateEsp32Controller(createEsp32UseCase)
+	getEsp32ByUsernameUseCase := esp32UseCases.NewGetEsp32ByPropietarioUseCase(esp32Database)
+	getEsp32ByUsernameController := esp32Controllers.NewGetEsp32ByPropietarioController(getEsp32ByUsernameUseCase)
+	deleteEsp32UseCase := esp32UseCases.NewDeleteEsp32UseCase(esp32Database)
+	deleteEsp32Controller := esp32Controllers.NewDeleteEsp32Controller(deleteEsp32UseCase)
+	sp32Routes := esp32Infrastructure.NewEsp32Routes(d.engine, createEsp32Controller, getEsp32ByUsernameController, deleteEsp32Controller)
 
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"http://localhost:5173"}
@@ -111,5 +115,5 @@ func (d *Dependencies) Run() error {
 	userRoutes.SetupRoutes()
 	lotesRoutes.SetupRoutes()
 
-	return d.engine.Run(":8082")
+	return d.engine.Run()
 }
