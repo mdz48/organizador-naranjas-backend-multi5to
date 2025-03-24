@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"organizador-naranjas-backend-multi5to/src/features/cajas/domain"
 )
 
@@ -15,18 +16,40 @@ func NewMySQL(db *sql.DB) *MySQL {
 }
 
 func (m *MySQL) Create(caja domain.Caja) (domain.Caja, error) {
-	result, err := m.db.Prepare("INSERT INTO cajas (descripcion, peso_total, precio, hora_inicio, hora_fin, lote_fk, encargado_fk, cantidad) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+	if caja.Estado == "" {
+		caja.Estado = "CARGANDO"
+	}
+
+	query := `
+        INSERT INTO cajas 
+        (descripcion, peso_total, precio, hora_inicio, hora_fin, lote_fk, encargado_fk, cantidad, estado, esp32_fk)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `
+
+	stmt, err := m.db.Prepare(query)
 	if err != nil {
 		return domain.Caja{}, err
 	}
-	defer result.Close()
+	defer stmt.Close()
 
-	res, err := result.Exec(caja.Descripcion, caja.PesoTotal, caja.Precio, caja.HoraInicio, caja.HoraFin, caja.LoteFK, caja.EncargadoFK, caja.Cantidad)
+	result, err := stmt.Exec(
+		caja.Descripcion,
+		caja.PesoTotal,
+		caja.Precio,
+		caja.HoraInicio,
+		caja.HoraFin,
+		caja.LoteFK,
+		caja.EncargadoFK,
+		caja.Cantidad,
+		caja.Estado,
+		caja.Esp32FK,
+	)
+
 	if err != nil {
 		return domain.Caja{}, err
 	}
 
-	id, err := res.LastInsertId()
+	id, err := result.LastInsertId()
 	if err != nil {
 		return domain.Caja{}, err
 	}
@@ -169,4 +192,74 @@ func (m *MySQL) GetByEncargado(encargadoId int) ([]domain.Caja, error) {
 	}
 
 	return cajas, nil
+}
+
+// Nuevo método para encontrar cajas por ESP32 y estado
+func (m *MySQL) FindByEsp32AndState(esp32Id string, state string) (domain.Caja, error) {
+	query := "SELECT id, descripcion, peso_total, precio, hora_inicio, hora_fin, lote_fk, encargado_fk, cantidad, estado, esp32_fk FROM cajas WHERE esp32_fk = ? AND estado = ?"
+
+	row := m.db.QueryRow(query, esp32Id, state)
+
+	var caja domain.Caja
+	err := row.Scan(
+		&caja.ID,
+		&caja.Descripcion,
+		&caja.PesoTotal,
+		&caja.Precio,
+		&caja.HoraInicio,
+		&caja.HoraFin,
+		&caja.LoteFK,
+		&caja.EncargadoFK,
+		&caja.Cantidad,
+		&caja.Estado,
+		&caja.Esp32FK,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return domain.Caja{}, fmt.Errorf("no se encontró caja activa para ESP32 %s", esp32Id)
+		}
+		return domain.Caja{}, err
+	}
+
+	return caja, nil
+}
+
+// Nuevo método para buscar por ESP32, estado y descripción
+func (m *MySQL) FindByEsp32StateAndDescription(esp32Id string, state string, description string) (domain.Caja, error) {
+	query := `
+        SELECT id, descripcion, peso_total, precio, hora_inicio, hora_fin, lote_fk, encargado_fk, cantidad, estado, esp32_fk 
+        FROM cajas 
+        WHERE esp32_fk = ? AND estado = ? AND descripcion LIKE ?
+    `
+
+	searchTerm := "%" + description + "%"
+
+	row := m.db.QueryRow(query, esp32Id, state, searchTerm)
+
+	var caja domain.Caja
+
+	// Escanear directamente a los campos de la estructura
+	err := row.Scan(
+		&caja.ID,
+		&caja.Descripcion,
+		&caja.PesoTotal,
+		&caja.Precio,
+		&caja.HoraInicio, // Escanear directamente a time.Time
+		&caja.HoraFin,    // Escanear directamente a time.Time
+		&caja.LoteFK,
+		&caja.EncargadoFK,
+		&caja.Cantidad,
+		&caja.Estado,
+		&caja.Esp32FK,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return domain.Caja{}, fmt.Errorf("no se encontró caja activa para ESP32 %s con descripción %s", esp32Id, description)
+		}
+		return domain.Caja{}, err
+	}
+
+	return caja, nil
 }

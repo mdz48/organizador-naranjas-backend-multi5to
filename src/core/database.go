@@ -3,10 +3,11 @@ package core
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 )
 
 type Database struct {
@@ -25,7 +26,8 @@ func NewDatabase() *Database {
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, name)
+	// Agregar parseTime=true a la cadena de conexión
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", user, password, host, port, name)
 	conn, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)

@@ -8,4 +8,6 @@ type ICaja interface {
 	Update(caja Caja) (Caja, error)
 	Delete(id int) error
 	GetByLote(loteId int) ([]Caja, error)
+	FindByEsp32AndState(esp32Id string, state string) (Caja, error)
+	FindByEsp32StateAndDescription(esp32Id string, state string, description string) (Caja, error)
 }

@@ -42,13 +42,16 @@ func NewDependencies() *Dependencies {
 func (d *Dependencies) Run() error {
 	database := core.NewDatabase()
 
-	// Inicializar RabbitMQ
-	rabbitMQ, err := core.NewRabbitMQ()
+	// Inicializar RabbitMQ (puede devolver nil si hay error)
+	var rabbitMQ *core.RabbitMQ
+	rabbitMQTmp, err := core.NewRabbitMQ()
 	if err != nil {
 		log.Printf("Advertencia: No se pudo conectar a RabbitMQ: %v", err)
-		// Continuamos sin RabbitMQ, no es fatal
+		// Continuamos con rabbitMQ = nil
 	} else {
-		defer rabbitMQ.Close()
+		rabbitMQ = rabbitMQTmp
+		// No uses defer rabbitMQ.Close() aquí, cerrará la conexión
+		// antes de que se use
 	}
 
 	cajasDatabase := cajasInfrastructure.NewMySQL(database.Conn)
@@ -62,13 +65,17 @@ func (d *Dependencies) Run() error {
 	deleteCajasController := cajasControllers.NewDeleteCajaController(deleteCajasUseCase)
 	cajasRoutes := cajasInfrastructure.NewCajasRoutes(d.engine, getAllController, createCajaController, updateCajasController, deleteCajasController)
 
-	var naranjaProducer *naranjasInfrastructure.Producer
-	if rabbitMQ != nil {
-		naranjaProducer = naranjasInfrastructure.NewProducer(rabbitMQ)
-	}
+	findActiveCajaByEsp32UseCase := cajasUseCases.NewFindActiveCajaByEsp32UseCase(cajasDatabase)
+
+	// Crear el productor (funcionará incluso con rabbitMQ = nil)
+	naranjaProducer := naranjasInfrastructure.NewProducer(rabbitMQ)
 
 	naranjaDatabase := naranjasInfrastructure.NewMySQL(database.Conn)
-	createNaranjaUseCase := naranjasUseCases.NewCreateNaranjaUseCase(naranjaDatabase, naranjaProducer)
+	createNaranjaUseCase := naranjasUseCases.NewCreateNaranjaUseCase(
+		naranjaDatabase,
+		naranjaProducer,
+		findActiveCajaByEsp32UseCase,
+	)
 	createNaranjaController := naranjasControllers.NewCreateNaranjaController(createNaranjaUseCase)
 	getAllNaranjaUseCase := naranjasUseCases.NewGetAllUseCase(naranjaDatabase)
 	getAllNaranjasController := naranjasControllers.NewGetAllController(getAllNaranjaUseCase)

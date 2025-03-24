@@ -12,4 +12,6 @@ type Caja struct {
     LoteFK      int       `json:"lote_fk"`
     EncargadoFK int       `json:"encargado_fk"`
     Cantidad    int       `json:"cantidad"`
+    Estado      string    `json:"estado"`    
+    Esp32FK     string    `json:"esp32_fk"`   
 }

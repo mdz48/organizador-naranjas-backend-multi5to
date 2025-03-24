@@ -18,18 +18,24 @@ func NewProducer(rabbitMQ *core.RabbitMQ) *Producer {
 }
 
 func (p *Producer) PublishNaranja(naranja domain.Naranja) error {
-    jsonData, err := json.Marshal(naranja)
-    if err != nil {
-        log.Printf("Error al convertir naranja a JSON: %v", err)
-        return err
-    }
+	// Verificar si rabbitMQ es nil antes de usarlo
+	if p.rabbitMQ == nil {
+		log.Printf("Advertencia: RabbitMQ no está configurado, saltando publicación")
+		return nil // No consideramos esto un error fatal
+	}
 
-    err = p.rabbitMQ.PublishMessage("api2.oranges", jsonData)
-    if err != nil {
-        log.Printf("Error al publicar en RabbitMQ: %v", err)
-        return err
-    }
+	jsonData, err := json.Marshal(naranja)
+	if err != nil {
+		log.Printf("Error al convertir naranja a JSON: %v", err)
+		return err
+	}
 
-    log.Printf("Naranja ID %d publicada exitosamente", naranja.ID)
-    return nil
+	err = p.rabbitMQ.PublishMessage("api2.oranges", jsonData)
+	if err != nil {
+		log.Printf("Error al publicar en RabbitMQ: %v", err)
+		return err
+	}
+
+	log.Printf("Naranja ID %d publicada exitosamente en RabbitMQ", naranja.ID)
+	return nil
 }
