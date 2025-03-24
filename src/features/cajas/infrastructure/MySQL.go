@@ -263,3 +263,14 @@ func (m *MySQL) FindByEsp32StateAndDescription(esp32Id string, state string, des
 
 	return caja, nil
 }
+
+// Añadir este método a la estructura MySQL
+
+func (m *MySQL) UpdateStatusByLoteId(loteId int, estado string) error {
+	query := "UPDATE cajas SET estado = ? WHERE lote_fk = ?"
+	_, err := m.db.Exec(query, estado, loteId)
+	if err != nil {
+		return err
+	}
+	return nil
+}

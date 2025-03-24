@@ -117,7 +117,21 @@ func (d *Dependencies) Run() error {
 	listLoteDateController := lotesControllers.NewListLoteDateController(listLoteDateUseCase)
 	deleteLoteController := lotesControllers.NewDeleteLoteController(deleteLoteUseCase)
 	updateLoteControlerr := lotesControllers.NewUpdateLoteController(updateLoteUseCase)
-	lotesRoutes := lotesInfrastructure.NewLotesRoutes(d.engine, createLoteController, listAllLotesController, listLoteIdController, listLoteDateController, deleteLoteController, updateLoteControlerr)
+
+	// Inicializar el caso de uso de actualización de estado de lote
+	updateLoteStatusUseCase := lotesUseCases.NewUpdateLoteStatusUseCase(lotesDatabase, cajasDatabase)
+	updateLoteStatusController := lotesControllers.NewUpdateLoteStatusController(updateLoteStatusUseCase)
+
+	lotesRoutes := lotesInfrastructure.NewLotesRoutes(
+		d.engine,
+		createLoteController,
+		listAllLotesController,
+		listLoteIdController,
+		listLoteDateController,
+		deleteLoteController,
+		updateLoteControlerr,
+		updateLoteStatusController, // Nuevo controlador
+	)
 
 	esp32Database := esp32Adapter.NewMysql(database.Conn)
 	createEsp32UseCase := esp32UseCases.NewSaveEsp32(esp32Database)

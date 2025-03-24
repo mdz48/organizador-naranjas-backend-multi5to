@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"log"
 	"organizador-naranjas-backend-multi5to/src/features/lotes/domain"
+	"strings"
+	"time"
 )
 
 type MySQL struct {
@@ -15,20 +17,29 @@ func NewMySQL(db *sql.DB) *MySQL {
 }
 
 func (mysql *MySQL) Create(lote domain.Lote) (domain.Lote, error) {
-	result, err := mysql.db.Exec("INSERT INTO lote (fecha, observaciones) VALUES (?,?)", lote.Fecha, lote.Observaciones)
+	// Formatear la fecha si es necesario
+	fecha := lote.Fecha
+	if strings.Contains(fecha, "T") {
+		parsedTime, err := time.Parse(time.RFC3339, fecha)
+		if err == nil {
+			fecha = parsedTime.Format("2006-01-02")
+		}
+	}
+
+	result, err := mysql.db.Exec("INSERT INTO lote (fecha, observaciones, estado) VALUES (?,?,?)",
+		fecha, lote.Observaciones, lote.Estado)
 
 	if err != nil {
 		return domain.Lote{}, err
 	}
 
 	id, errId := result.LastInsertId()
-
 	if errId != nil {
 		return domain.Lote{}, errId
 	}
 
 	lote.ID = int(id)
-
+	lote.Fecha = fecha // Actualizar con la fecha formateada
 	return lote, nil
 }
 
@@ -42,7 +53,7 @@ func (mysql *MySQL) GetAll() ([]domain.Lote, error) {
 
 	for result.Next() {
 		var lote domain.Lote
-		errScan := result.Scan(&lote.ID, &lote.Fecha, &lote.Observaciones)
+		errScan := result.Scan(&lote.ID, &lote.Fecha, &lote.Observaciones, &lote.Estado)
 		if errScan != nil {
 			log.Printf("error to scan lote!")
 		}
@@ -61,7 +72,7 @@ func (mysql *MySQL) GetById(id int) (domain.Lote, error) {
 		return domain.Lote{}, err
 	}
 
-	errScan := result.Scan(&lote.ID, &lote.Fecha, &lote.Observaciones)
+	errScan := result.Scan(&lote.ID, &lote.Fecha, &lote.Observaciones, &lote.Estado)
 
 	if errScan != nil {
 		return domain.Lote{}, errScan
@@ -81,14 +92,26 @@ func (mysql *MySQL) Delete(id int) error {
 }
 
 func (mysql *MySQL) Update(id int, lote domain.Lote) (domain.Lote, error) {
-	log.Printf("message %s", lote);
-	_, err := mysql.db.Query("UPDATE lote SET fecha = ?, observaciones = ? WHERE id = ?", lote.Fecha, lote.Observaciones, id)
+	// Formatear la fecha si es necesario
+	fecha := lote.Fecha
+	if strings.Contains(fecha, "T") {
+		parsedTime, err := time.Parse(time.RFC3339, fecha)
+		if err == nil {
+			fecha = parsedTime.Format("2006-01-02")
+		}
+	}
+
+	log.Printf("message %v", lote)
+	_, err := mysql.db.Exec("UPDATE lote SET fecha = ?, observaciones = ?, estado = ? WHERE id = ?",
+		fecha, lote.Observaciones, lote.Estado, id)
 
 	if err != nil {
 		return domain.Lote{}, err
 	}
 
-	return lote, err
+	// Actualizar el objeto lote con la fecha formateada
+	lote.Fecha = fecha
+	return lote, nil
 }
 
 func (mysql *MySQL) GetByDate(date string) ([]domain.Lote, error) {
@@ -102,7 +125,7 @@ func (mysql *MySQL) GetByDate(date string) ([]domain.Lote, error) {
 	for result.Next() {
 		var lote domain.Lote
 
-		errScan := result.Scan(&lote.ID, &lote.Fecha, &lote.Observaciones)
+		errScan := result.Scan(&lote.ID, &lote.Fecha, &lote.Observaciones, &lote.Estado)
 		if errScan != nil {
 			return nil, errScan
 		}

@@ -7,32 +7,35 @@ import (
 )
 
 type LotesRoutes struct {
-	engine *gin.Engine
-	createLoteController *controllers.CreateLoteController
-	listLotesController *controllers.GetAllLotesController
-	listLoteIdController *controllers.ListLoteIdController
-	listLoteDateController *controllers.ListLoteDateController
-	deleteLoteController *controllers.DeleteLoteController
-	updateLoteController *controllers.UpdateLoteController
+	engine                     *gin.Engine
+	createLoteController       *controllers.CreateLoteController
+	listLotesController        *controllers.GetAllLotesController
+	listLoteIdController       *controllers.ListLoteIdController
+	listLoteDateController     *controllers.ListLoteDateController
+	deleteLoteController       *controllers.DeleteLoteController
+	updateLoteController       *controllers.UpdateLoteController
+	updateLoteStatusController *controllers.UpdateLoteStatusController // Nuevo controlador
 }
 
 func NewLotesRoutes(
-	engine *gin.Engine, 
-	createController *controllers.CreateLoteController, 
+	engine *gin.Engine,
+	createController *controllers.CreateLoteController,
 	listLotesController *controllers.GetAllLotesController,
 	listLoteIdControler *controllers.ListLoteIdController,
 	listLoteDateController *controllers.ListLoteDateController,
 	deleteLoteController *controllers.DeleteLoteController,
 	updateLoteController *controllers.UpdateLoteController,
-	) *LotesRoutes {
+	updateLoteStatusController *controllers.UpdateLoteStatusController, // Nuevo parámetro
+) *LotesRoutes {
 	return &LotesRoutes{
-		engine: engine,
-		createLoteController: createController,
-		listLotesController: listLotesController,
-		listLoteIdController: listLoteIdControler,
-		listLoteDateController: listLoteDateController,
-		deleteLoteController: deleteLoteController,
-		updateLoteController: updateLoteController,
+		engine:                     engine,
+		createLoteController:       createController,
+		listLotesController:        listLotesController,
+		listLoteIdController:       listLoteIdControler,
+		listLoteDateController:     listLoteDateController,
+		deleteLoteController:       deleteLoteController,
+		updateLoteController:       updateLoteController,
+		updateLoteStatusController: updateLoteStatusController, // Asignar el controlador
 	}
 }
 
@@ -45,6 +48,7 @@ func (routes *LotesRoutes) SetupRoutes() {
 		lotes.GET("/:id", routes.listLoteIdController.Run)
 		lotes.DELETE("/:id", routes.deleteLoteController.Run)
 		lotes.PUT("/:id", routes.updateLoteController.Run)
+		lotes.PATCH("/:id/status", routes.updateLoteStatusController.Run)
 	}
 }
 
