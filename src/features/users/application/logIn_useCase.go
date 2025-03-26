@@ -33,11 +33,14 @@ func (uc *LogInUseCase) Run(userLog *entities.UserLogIn) (*entities.Claims, erro
 		return nil, errors.New("invalid credentials")
 	}
 
-	// Crear los claims
+	// Crear los claims con TODOS los campos del usuario
 	claims := &entities.Claims{
+		ID:       user.ID,
 		Username: user.Username,
 		Name:     user.Name,
 		Rol:      user.Rol,
+		Email:    user.Email,
+		Id_jefe:  user.Id_jefe,
 	}
 
 	return claims, nil

@@ -27,14 +27,12 @@ func (ctr *LogInController) Run(ctx *gin.Context) {
 		return
 	}
 
-	// Ejecutar el caso de uso para obtener los claims
 	claims, err := ctr.uc.Run(&userLog)
 	if err != nil {
 		ctx.JSON(401, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Generar el token a partir de los claims
 	token, errToken := middlewares.GenerateTokenFromClaims(claims)
 	if errToken != nil {
 		log.Printf("error: %s", errToken)
@@ -42,13 +40,17 @@ func (ctr *LogInController) Run(ctx *gin.Context) {
 		return
 	}
 
-	// Retornar token y claims en la respuesta
+	userResponse := entities.UserResponse{
+		ID:       claims.ID,
+		Name:     claims.Name,
+		Rol:      claims.Rol,
+		Email:    claims.Email,
+		Username: claims.Username,
+		Id_jefe:  claims.Id_jefe,
+	}
+
 	ctx.JSON(200, gin.H{
 		"token": token,
-		"user": gin.H{
-			"name":     claims.Name,
-			"username": claims.Username,
-			"rol":      claims.Rol,
-		},
+		"user":  userResponse,
 	})
 }

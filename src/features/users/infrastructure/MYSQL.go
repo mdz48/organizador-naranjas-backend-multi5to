@@ -17,7 +17,7 @@ func NewMysql(db *sql.DB) *MYSQL {
 
 func (mysql *MYSQL) Save(user *entities.User) (*entities.UserResponse, error) {
 	result, err := mysql.db.Exec("INSERT INTO users (name, password, rol, email, username, id_jefe) VALUES (?,?,?,?,?,?)", 
-		user.Name, user.Password, user.Rol, user.Email, user.Username)
+		user.Name, user.Password, user.Rol, user.Email, user.Username, user.Id_jefe)
 	if (err != nil) {
 		return nil, err
 	}
