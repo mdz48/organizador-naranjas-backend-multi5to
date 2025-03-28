@@ -132,3 +132,23 @@ func (mysql *MYSQL) GetByUsername(username string) (*entities.UserResponse, erro
 	}
 	return &user, nil
 }
+
+func (mysql *MYSQL) GetAllByJefe(id_jefe int32) ([]entities.UserResponse, error) {
+	rows, err := mysql.db.Query("SELECT id, name, rol, email, username, id_jefe FROM users WHERE id_jefe = ?", id_jefe)
+	if (err != nil) {
+		return nil, err
+	}
+	defer rows.Close()
+	var users []entities.UserResponse
+	for rows.Next() {
+		var user entities.UserResponse
+		if err := rows.Scan(&user.ID, &user.Name, &user.Rol, &user.Email, &user.Username, &user.Id_jefe); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return users, nil
+}

@@ -102,7 +102,9 @@ func (d *Dependencies) Run() error {
 	getUserByIdController := usersControllers.NewGetUserByIdController(getUserByIdUseCase)
 	getUserByUsernameUseCase := usersUseCases.NewGetUserByUsernameUseCase(userDataBase)
 	getUserByUsernameController := usersControllers.NewGetByUsernameController(getUserByUsernameUseCase)
-	userRoutes := usersInfrastructure.NewUserRoutes(d.engine, createUserController, logInController, updateUserController, deleteUserController, getUserByIdController, getUserByUsernameController, getUsersController)
+	getUsersByJefeUseCase := usersUseCases.NewGetAllByJefeUseCase(userDataBase)
+	getUsersByJefeController := usersControllers.NewGetAllByJefeController(getUsersByJefeUseCase)
+	userRoutes := usersInfrastructure.NewUserRoutes(d.engine, createUserController, logInController, updateUserController, deleteUserController, getUserByIdController, getUserByUsernameController, getUsersController, getUsersByJefeController)
 
 	lotesDatabase := lotesInfrastructure.NewMySQL(database.Conn)
 	createLoteUseCase := lotesUseCases.NewCreateLoteUseCase(lotesDatabase)

@@ -10,4 +10,5 @@ type IUser interface {
 	GetAll() ([]entities.UserResponse, error)
 	GetByID(id int32) (*entities.UserResponse, error)
 	GetByUsername(username string) (*entities.UserResponse, error)
+	GetAllByJefe(id_jefe int32) ([]entities.UserResponse, error)
 }

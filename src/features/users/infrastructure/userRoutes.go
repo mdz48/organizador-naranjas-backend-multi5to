@@ -14,9 +14,10 @@ type UserRoutes struct {
 	getByIdController   *controllers.GetUserByIdController
 	getByUsernameController *controllers.GetByUsernameController
 	getUsersController *controllers.GetUsersController
+	getUsersByJefeController *controllers.GetAllByJefeController
 }
 
-func NewUserRoutes(engine *gin.Engine, createUserController *controllers.CreateUserController, logInController *controllers.LogInController, updateUserController *controllers.UpdateUserController, deleteUserController *controllers.DeleteUserController, getByIdController   *controllers.GetUserByIdController, getByUsernameController *controllers.GetByUsernameController, getUsersController *controllers.GetUsersController) *UserRoutes {
+func NewUserRoutes(engine *gin.Engine, createUserController *controllers.CreateUserController, logInController *controllers.LogInController, updateUserController *controllers.UpdateUserController, deleteUserController *controllers.DeleteUserController, getByIdController   *controllers.GetUserByIdController, getByUsernameController *controllers.GetByUsernameController, getUsersController *controllers.GetUsersController, getUsersByJefeController *controllers.GetAllByJefeController) *UserRoutes {
 	return &UserRoutes{
 		engine:               engine,
 		createUserController: createUserController,
@@ -26,6 +27,7 @@ func NewUserRoutes(engine *gin.Engine, createUserController *controllers.CreateU
 		getByIdController:   getByIdController,
 		getByUsernameController: getByUsernameController,
 		getUsersController: getUsersController,
+		getUsersByJefeController: getUsersByJefeController,
 	}
 }
 
@@ -39,6 +41,7 @@ func (routes *UserRoutes) SetupRoutes() {
 		userRoutes.GET("/:id", routes.getByIdController.Run)
 		userRoutes.GET("/username/:username", routes.getByUsernameController.Run)
 		userRoutes.GET("/", routes.getUsersController.Run)
+		userRoutes.GET("/jefe/:jefeId", routes.getUsersByJefeController.Run)
 	}
 }
 
