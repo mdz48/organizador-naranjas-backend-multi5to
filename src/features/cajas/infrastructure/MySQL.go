@@ -274,3 +274,45 @@ func (m *MySQL) UpdateStatusByLoteId(loteId int, estado string) error {
 	}
 	return nil
 }
+
+func (m *MySQL) GetTop3ByLote(loteId int) ([]domain.Caja, error) {
+    // Modificamos la consulta para obtener solo 3 cajas ordenadas por ID
+    rows, err := m.db.Query(`
+        SELECT id, descripcion, peso_total, precio, hora_inicio, hora_fin, 
+               lote_fk, encargado_fk, cantidad, estado, esp32_fk 
+        FROM cajas 
+        WHERE lote_fk = ? 
+        ORDER BY id 
+        LIMIT 3`, loteId)
+    
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+    
+    var cajas []domain.Caja
+    for rows.Next() {
+        var caja domain.Caja
+        if err := rows.Scan(
+            &caja.ID, 
+            &caja.Descripcion, 
+            &caja.PesoTotal, 
+            &caja.Precio, 
+            &caja.HoraInicio, 
+            &caja.HoraFin, 
+            &caja.LoteFK, 
+            &caja.EncargadoFK, 
+            &caja.Cantidad,
+            &caja.Estado,
+            &caja.Esp32FK); err != nil {
+            return nil, err
+        }
+        cajas = append(cajas, caja)
+    }
+    
+    if err := rows.Err(); err != nil {
+        return nil, err
+    }
+    
+    return cajas, nil
+}

@@ -63,7 +63,10 @@ func (d *Dependencies) Run() error {
 	updateCajasController := cajasControllers.NewUpdateCajaController(updateCajasUseCase)
 	deleteCajasUseCase := cajasUseCases.NewDeleteCajaUseCase(cajasDatabase)
 	deleteCajasController := cajasControllers.NewDeleteCajaController(deleteCajasUseCase)
-	cajasRoutes := cajasInfrastructure.NewCajasRoutes(d.engine, getAllController, createCajaController, updateCajasController, deleteCajasController)
+	getTop3CajasByLoteUseCase := cajasUseCases.NewGetTop3CajasByLoteUseCase(cajasDatabase)
+	getTop3CajasByLoteController := cajasControllers.NewGetTop3CajasByLoteController(getTop3CajasByLoteUseCase)
+
+	cajasRoutes := cajasInfrastructure.NewCajasRoutes(d.engine, getAllController, createCajaController, updateCajasController, deleteCajasController, getTop3CajasByLoteController)
 
 	findActiveCajaByEsp32UseCase := cajasUseCases.NewFindActiveCajaByEsp32UseCase(cajasDatabase)
 
