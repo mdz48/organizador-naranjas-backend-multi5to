@@ -40,7 +40,7 @@ func (uc *LogInUseCase) Run(userLog *entities.UserLogIn) (*entities.Claims, erro
 		Name:     user.Name,
 		Rol:      user.Rol,
 		Email:    user.Email,
-		Id_jefe:  user.Id_jefe,
+		Id_jefe:  user.Id_jefe, // Ahora es *int en ambos lados
 	}
 
 	return claims, nil
