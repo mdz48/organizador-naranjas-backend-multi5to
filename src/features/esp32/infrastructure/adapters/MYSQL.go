@@ -10,6 +10,11 @@ type MYSQL struct {
 	conn *sql.DB
 }
 
+// Delete implements ports.IEsp32.
+func (mysql *MYSQL) Delete(id string) error {
+	panic("unimplemented")
+}
+
 func NewMysql(conn *sql.DB) *MYSQL {
 	return &MYSQL{
 		conn: conn,
@@ -34,34 +39,29 @@ func (mysql *MYSQL) Save(esp32 *entities.Esp32) (*entities.Esp32, error) {
 	return esp32, nil
 }
 
-func (mysql *MYSQL) GetByPropietario(id int) (*entities.Esp32, error) {
-	row := mysql.conn.QueryRow("SELECT id, id_propietario FROM esp32 WHERE id_propietario = ?", id)
-
-	var esp32 entities.Esp32
-	err := row.Scan(&esp32.Id, &esp32.IdPropietario)
+func (mysql *MYSQL) GetByPropietario(id int) ([]entities.Esp32, error) {
+	rows, err := mysql.conn.Query("SELECT id, id_propietario FROM esp32 WHERE id_propietario = ?", id)
 	if err != nil {
-		log.Printf("error to get esp32 by username: %v", err)
-		return &entities.Esp32{}, err
+		log.Printf("error querying esp32 devices: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var devices []entities.Esp32
+	for rows.Next() {
+		var esp32 entities.Esp32
+		if err := rows.Scan(&esp32.Id, &esp32.IdPropietario); err != nil {
+			log.Printf("error scanning esp32 row: %v", err)
+			return nil, err
+		}
+		devices = append(devices, esp32)
 	}
 
-	return &esp32, nil
-}
-
-func (mysql *MYSQL) Delete(id string) error {
-	result, err := mysql.conn.Prepare("DELETE FROM esp32 WHERE id = ?")
-	if err != nil {
-		log.Printf("error to prepare query: %v", err)
-		return err
+	if err := rows.Err(); err != nil {
+		log.Printf("error iterating esp32 rows: %v", err)
+		return nil, err
 	}
-	defer result.Close()
-
-	_, errDelete := result.Exec(id)
-	if errDelete != nil {
-		log.Printf("error to delete esp32: %v", errDelete)
-		return errDelete
-	}
-
-	return nil
+	return devices, nil
 }
 
 // Añadido método para obtener por ID

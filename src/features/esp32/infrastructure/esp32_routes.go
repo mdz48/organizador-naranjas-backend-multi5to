@@ -26,7 +26,7 @@ func (routes *Esp32Routes) Run() {
 	sp32Routes := routes.engine.Group("/esp32")
 	{
 		sp32Routes.POST("/", routes.createSp32Controller.Run)
-		sp32Routes.GET("/:id", routes.getSp32ByUsernameController.Run)
+		sp32Routes.GET("/propietario/:id", routes.getSp32ByUsernameController.Run)
 		sp32Routes.DELETE("/:id", routes.deleteEsp32Controller.Run)
 	}
 }
