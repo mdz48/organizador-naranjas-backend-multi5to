@@ -138,3 +138,26 @@ func (mysql *MySQL) Delete(id int) error {
 	_, err := mysql.db.Exec("DELETE FROM lote WHERE id = ?", id)
 	return err
 }
+
+// GetByUserId retrieves all lotes for a specific user
+func (mysql *MySQL) GetByUserId(userId int) ([]domain.Lote, error) {
+	var lotes []domain.Lote
+	result, err := mysql.db.Query("SELECT id, fecha, observaciones, estado, user_id FROM lote WHERE user_id = ?", userId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for result.Next() {
+		var lote domain.Lote
+
+		errScan := result.Scan(&lote.ID, &lote.Fecha, &lote.Observaciones, &lote.Estado, &lote.UserID)
+		if errScan != nil {
+			return nil, errScan
+		}
+
+		lotes = append(lotes, lote)
+	}
+
+	return lotes, nil
+}

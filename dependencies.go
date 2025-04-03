@@ -122,10 +122,11 @@ func (d *Dependencies) Run() error {
 	listLoteDateController := lotesControllers.NewListLoteDateController(listLoteDateUseCase)
 	deleteLoteController := lotesControllers.NewDeleteLoteController(deleteLoteUseCase)
 	updateLoteControlerr := lotesControllers.NewUpdateLoteController(updateLoteUseCase)
-
-	// Inicializar el caso de uso de actualización de estado de lote
 	updateLoteStatusUseCase := lotesUseCases.NewUpdateLoteStatusUseCase(lotesDatabase, cajasDatabase)
 	updateLoteStatusController := lotesControllers.NewUpdateLoteStatusController(updateLoteStatusUseCase)
+	getLoteByUserUseCase := lotesUseCases.NewGetLotesByUserUseCase(lotesDatabase)
+	getLoteByUserController := lotesControllers.NewGetLotesByUserController(getLoteByUserUseCase)
+	
 
 	lotesRoutes := lotesInfrastructure.NewLotesRoutes(
 		d.engine,
@@ -135,7 +136,8 @@ func (d *Dependencies) Run() error {
 		listLoteDateController,
 		deleteLoteController,
 		updateLoteControlerr,
-		updateLoteStatusController, // Nuevo controlador
+		updateLoteStatusController, 
+		getLoteByUserController,
 	)
 
 	esp32Database := esp32Adapter.NewMysql(database.Conn)

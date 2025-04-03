@@ -14,7 +14,8 @@ type LotesRoutes struct {
 	listLoteDateController     *controllers.ListLoteDateController
 	deleteLoteController       *controllers.DeleteLoteController
 	updateLoteController       *controllers.UpdateLoteController
-	updateLoteStatusController *controllers.UpdateLoteStatusController // Nuevo controlador
+	updateLoteStatusController *controllers.UpdateLoteStatusController
+	getLoteByIdController     *controllers.GetLotesByUserController
 }
 
 func NewLotesRoutes(
@@ -25,7 +26,8 @@ func NewLotesRoutes(
 	listLoteDateController *controllers.ListLoteDateController,
 	deleteLoteController *controllers.DeleteLoteController,
 	updateLoteController *controllers.UpdateLoteController,
-	updateLoteStatusController *controllers.UpdateLoteStatusController, // Nuevo parámetro
+	updateLoteStatusController *controllers.UpdateLoteStatusController, 
+	getLoteByIdController     *controllers.GetLotesByUserController,
 ) *LotesRoutes {
 	return &LotesRoutes{
 		engine:                     engine,
@@ -35,7 +37,8 @@ func NewLotesRoutes(
 		listLoteDateController:     listLoteDateController,
 		deleteLoteController:       deleteLoteController,
 		updateLoteController:       updateLoteController,
-		updateLoteStatusController: updateLoteStatusController, // Asignar el controlador
+		updateLoteStatusController: updateLoteStatusController,
+		getLoteByIdController:     getLoteByIdController,
 	}
 }
 
@@ -49,11 +52,12 @@ func (routes *LotesRoutes) SetupRoutes() {
 		lotes.DELETE("/:id", routes.deleteLoteController.Run)
 		lotes.PUT("/:id", routes.updateLoteController.Run)
 		lotes.PATCH("/:id/status", routes.updateLoteStatusController.Run)
+		lotes.GET("/user/:id", routes.getLoteByIdController.Run)
 	}
 }
 
 func (routes *LotesRoutes) Run() error {
-	if err := routes.engine.Run(":8080"); err != nil {
+	if err := routes.engine.Run(); err != nil {
 		return err
 	}
 	return nil
