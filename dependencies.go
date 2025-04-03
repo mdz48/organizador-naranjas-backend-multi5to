@@ -134,6 +134,8 @@ func (d *Dependencies) Run() error {
 	getAllLotesWithCajasController := lotesControllers.NewGetAllLotesWithCajasController(getAllLotesWithCajasUseCase)
 	getLotesWithCajasByUserUseCase := lotesUseCases.NewGetLotesWithCajasByUserUseCase(lotesDatabase, cajasDatabase)
 	getLotesWithCajasByUserController := lotesControllers.NewGetLotesWithCajasByUserController(getLotesWithCajasByUserUseCase)
+	getLotesWithCajasByUserUseCaseWithRanges := lotesUseCases.NewGetLotesWithCajasByUserDateRangeUseCase(lotesDatabase, cajasDatabase)
+	getLotesWithCajasByUserControllerWithRanges := lotesControllers.NewGetLotesWithCajasByUserDateRangeController(getLotesWithCajasByUserUseCaseWithRanges)
 
 	
 
@@ -151,6 +153,7 @@ func (d *Dependencies) Run() error {
 		getLoteWithCajasController,
 		getAllLotesWithCajasController,
 		getLotesWithCajasByUserController,
+		getLotesWithCajasByUserControllerWithRanges,
 	)
 
 	esp32Database := esp32Adapter.NewMysql(database.Conn)

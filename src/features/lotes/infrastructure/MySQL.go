@@ -161,3 +161,35 @@ func (mysql *MySQL) GetByUserId(userId int) ([]domain.Lote, error) {
 
 	return lotes, nil
 }
+
+// GetByUserIdAndDateRange retrieves lotes for a user within a date range
+func (mysql *MySQL) GetByUserIdAndDateRange(userId int, startDate, endDate string) ([]domain.Lote, error) {
+	var lotes []domain.Lote
+
+	query := `
+		SELECT id, fecha, observaciones, estado, user_id 
+		FROM lote
+		WHERE user_id = ? AND fecha BETWEEN ? AND ?
+	`
+
+	rows, err := mysql.db.Query(query, userId, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var lote domain.Lote
+		err := rows.Scan(&lote.ID, &lote.Fecha, &lote.Observaciones, &lote.Estado, &lote.UserID)
+		if err != nil {
+			return nil, err
+		}
+		lotes = append(lotes, lote)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return lotes, nil
+}

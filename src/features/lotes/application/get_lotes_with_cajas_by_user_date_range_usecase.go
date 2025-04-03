@@ -6,21 +6,21 @@ import (
 	"organizador-naranjas-backend-multi5to/src/features/lotes/domain"
 )
 
-type GetLotesWithCajasByUserUseCase struct {
+type GetLotesWithCajasByUserDateRangeUseCase struct {
 	loteRepository domain.ILote
 	cajaRepository cajaDomain.ICaja
 }
 
-func NewGetLotesWithCajasByUserUseCase(loteRepository domain.ILote, cajaRepository cajaDomain.ICaja) *GetLotesWithCajasByUserUseCase {
-	return &GetLotesWithCajasByUserUseCase{
+func NewGetLotesWithCajasByUserDateRangeUseCase(loteRepository domain.ILote, cajaRepository cajaDomain.ICaja) *GetLotesWithCajasByUserDateRangeUseCase {
+	return &GetLotesWithCajasByUserDateRangeUseCase{
 		loteRepository: loteRepository,
 		cajaRepository: cajaRepository,
 	}
 }
 
-func (g *GetLotesWithCajasByUserUseCase) Execute(userId int) ([]domain.LoteWithCajasResponse, error) {
-	// 1. Obtener todos los lotes del usuario
-	lotes, err := g.loteRepository.GetByUserId(userId)
+func (g *GetLotesWithCajasByUserDateRangeUseCase) Execute(userId int, startDate, endDate string) ([]domain.LoteWithCajasResponse, error) {
+	// 1. Obtener los lotes del usuario en el rango de fechas especificado
+	lotes, err := g.loteRepository.GetByUserIdAndDateRange(userId, startDate, endDate)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,13 @@ func (g *GetLotesWithCajasByUserUseCase) Execute(userId int) ([]domain.LoteWithC
 		if err != nil {
 			// Loguear el error pero continuar con otros lotes
 			log.Printf("Error al obtener cajas para lote %d: %v", lote.ID, err)
-			continue
+			// Usar array vacío en lugar de null/nil
+			cajas = []cajaDomain.Caja{}
+		}
+
+		// Si no hay cajas, usar un array vacío
+		if cajas == nil {
+			cajas = []cajaDomain.Caja{}
 		}
 
 		loteWithCajas := domain.LoteWithCajasResponse{

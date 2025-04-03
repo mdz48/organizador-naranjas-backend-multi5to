@@ -7,19 +7,20 @@ import (
 )
 
 type LotesRoutes struct {
-	engine                     *gin.Engine
-	createLoteController       *controllers.CreateLoteController
-	listLotesController        *controllers.GetAllLotesController
-	listLoteIdController       *controllers.ListLoteIdController
-	listLoteDateController     *controllers.ListLoteDateController
-	deleteLoteController       *controllers.DeleteLoteController
-	updateLoteController       *controllers.UpdateLoteController
-	updateLoteStatusController *controllers.UpdateLoteStatusController
-	getLoteByIdController      *controllers.GetLotesByUserController
-	createLoteWithCajas        *controllers.CreateLoteWithCajasController
-	getLoteWithCajasController *controllers.GetLoteWithCajasController
-	getAllLotesWithCajasController *controllers.GetAllLotesWithCajasController
-	getLotesWithCajasByUserController *controllers.GetLotesWithCajasByUserController 
+	engine                                     *gin.Engine
+	createLoteController                       *controllers.CreateLoteController
+	listLotesController                        *controllers.GetAllLotesController
+	listLoteIdController                       *controllers.ListLoteIdController
+	listLoteDateController                     *controllers.ListLoteDateController
+	deleteLoteController                       *controllers.DeleteLoteController
+	updateLoteController                       *controllers.UpdateLoteController
+	updateLoteStatusController                 *controllers.UpdateLoteStatusController
+	getLoteByIdController                      *controllers.GetLotesByUserController
+	createLoteWithCajas                        *controllers.CreateLoteWithCajasController
+	getLoteWithCajasController                 *controllers.GetLoteWithCajasController
+	getAllLotesWithCajasController             *controllers.GetAllLotesWithCajasController
+	getLotesWithCajasByUserController          *controllers.GetLotesWithCajasByUserController
+	getLotesWithCajasByUserDateRangeController *controllers.GetLotesWithCajasByUserDateRangeController
 }
 
 func NewLotesRoutes(
@@ -36,21 +37,23 @@ func NewLotesRoutes(
 	getLoteWithCajasController *controllers.GetLoteWithCajasController,
 	getAllLotesWithCajasController *controllers.GetAllLotesWithCajasController,
 	getLotesWithCajasByUserController *controllers.GetLotesWithCajasByUserController,
+	getLotesWithCajasByUserDateRangeController *controllers.GetLotesWithCajasByUserDateRangeController,
 ) *LotesRoutes {
 	return &LotesRoutes{
-		engine:                     engine,
-		createLoteController:       createController,
-		listLotesController:        listLotesController,
-		listLoteIdController:       listLoteIdControler,
-		listLoteDateController:     listLoteDateController,
-		deleteLoteController:       deleteLoteController,
-		updateLoteController:       updateLoteController,
-		updateLoteStatusController: updateLoteStatusController,
-		getLoteByIdController:      getLoteByIdController,
-		createLoteWithCajas:        createLoteWithCajas,
-		getLoteWithCajasController: getLoteWithCajasController,
-		getAllLotesWithCajasController: getAllLotesWithCajasController,
-		getLotesWithCajasByUserController: getLotesWithCajasByUserController,
+		engine:                                     engine,
+		createLoteController:                       createController,
+		listLotesController:                        listLotesController,
+		listLoteIdController:                       listLoteIdControler,
+		listLoteDateController:                     listLoteDateController,
+		deleteLoteController:                       deleteLoteController,
+		updateLoteController:                       updateLoteController,
+		updateLoteStatusController:                 updateLoteStatusController,
+		getLoteByIdController:                      getLoteByIdController,
+		createLoteWithCajas:                        createLoteWithCajas,
+		getLoteWithCajasController:                 getLoteWithCajasController,
+		getAllLotesWithCajasController:             getAllLotesWithCajasController,
+		getLotesWithCajasByUserController:          getLotesWithCajasByUserController,
+		getLotesWithCajasByUserDateRangeController: getLotesWithCajasByUserDateRangeController,
 	}
 }
 
@@ -68,7 +71,8 @@ func (routes *LotesRoutes) SetupRoutes() {
 		lotes.POST("/with-cajas", routes.createLoteWithCajas.Run)
 		lotes.GET("/with-cajas/:id", routes.getLoteWithCajasController.Run)
 		lotes.GET("/with-cajas", routes.getAllLotesWithCajasController.Run)
-        lotes.GET("/user/:id/with-cajas", routes.getLotesWithCajasByUserController.Run)
+		lotes.GET("/user/:id/with-cajas", routes.getLotesWithCajasByUserController.Run)
+		lotes.GET("/user/:id/with-cajas/date-range", routes.getLotesWithCajasByUserDateRangeController.Run)
 	}
 }
 
