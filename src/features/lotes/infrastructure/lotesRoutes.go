@@ -17,6 +17,9 @@ type LotesRoutes struct {
 	updateLoteStatusController *controllers.UpdateLoteStatusController
 	getLoteByIdController      *controllers.GetLotesByUserController
 	createLoteWithCajas        *controllers.CreateLoteWithCajasController
+	getLoteWithCajasController *controllers.GetLoteWithCajasController
+	getAllLotesWithCajasController *controllers.GetAllLotesWithCajasController
+	getLotesWithCajasByUserController *controllers.GetLotesWithCajasByUserController 
 }
 
 func NewLotesRoutes(
@@ -30,6 +33,9 @@ func NewLotesRoutes(
 	updateLoteStatusController *controllers.UpdateLoteStatusController,
 	getLoteByIdController *controllers.GetLotesByUserController,
 	createLoteWithCajas *controllers.CreateLoteWithCajasController,
+	getLoteWithCajasController *controllers.GetLoteWithCajasController,
+	getAllLotesWithCajasController *controllers.GetAllLotesWithCajasController,
+	getLotesWithCajasByUserController *controllers.GetLotesWithCajasByUserController,
 ) *LotesRoutes {
 	return &LotesRoutes{
 		engine:                     engine,
@@ -42,6 +48,9 @@ func NewLotesRoutes(
 		updateLoteStatusController: updateLoteStatusController,
 		getLoteByIdController:      getLoteByIdController,
 		createLoteWithCajas:        createLoteWithCajas,
+		getLoteWithCajasController: getLoteWithCajasController,
+		getAllLotesWithCajasController: getAllLotesWithCajasController,
+		getLotesWithCajasByUserController: getLotesWithCajasByUserController,
 	}
 }
 
@@ -57,6 +66,9 @@ func (routes *LotesRoutes) SetupRoutes() {
 		lotes.PATCH("/:id/status", routes.updateLoteStatusController.Run)
 		lotes.GET("/user/:id", routes.getLoteByIdController.Run)
 		lotes.POST("/with-cajas", routes.createLoteWithCajas.Run)
+		lotes.GET("/with-cajas/:id", routes.getLoteWithCajasController.Run)
+		lotes.GET("/with-cajas", routes.getAllLotesWithCajasController.Run)
+        lotes.GET("/user/:id/with-cajas", routes.getLotesWithCajasByUserController.Run)
 	}
 }
 

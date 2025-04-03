@@ -128,6 +128,13 @@ func (d *Dependencies) Run() error {
 	getLoteByUserController := lotesControllers.NewGetLotesByUserController(getLoteByUserUseCase)
 	createLoteWithCajasUseCase := lotesUseCases.NewCreateLoteWithCajasUseCase(lotesDatabase, cajasDatabase)
 	createLoteWithCajasController := lotesControllers.NewCreateLoteWithCajasController(createLoteWithCajasUseCase)
+	getLoteWithCajasUseCase := lotesUseCases.NewGetLoteWithCajasUseCase(lotesDatabase, cajasDatabase)
+	getLoteWithCajasController := lotesControllers.NewGetLoteWithCajasController(getLoteWithCajasUseCase)
+	getAllLotesWithCajasUseCase := lotesUseCases.NewGetAllLotesWithCajasUseCase(lotesDatabase, cajasDatabase)
+	getAllLotesWithCajasController := lotesControllers.NewGetAllLotesWithCajasController(getAllLotesWithCajasUseCase)
+	getLotesWithCajasByUserUseCase := lotesUseCases.NewGetLotesWithCajasByUserUseCase(lotesDatabase, cajasDatabase)
+	getLotesWithCajasByUserController := lotesControllers.NewGetLotesWithCajasByUserController(getLotesWithCajasByUserUseCase)
+
 	
 
 	lotesRoutes := lotesInfrastructure.NewLotesRoutes(
@@ -141,6 +148,9 @@ func (d *Dependencies) Run() error {
 		updateLoteStatusController, 
 		getLoteByUserController,
 		createLoteWithCajasController,
+		getLoteWithCajasController,
+		getAllLotesWithCajasController,
+		getLotesWithCajasByUserController,
 	)
 
 	esp32Database := esp32Adapter.NewMysql(database.Conn)

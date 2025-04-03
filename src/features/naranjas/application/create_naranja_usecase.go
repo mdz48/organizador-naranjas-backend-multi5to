@@ -64,3 +64,5 @@ func (c *CreateNaranjaUseCase) Execute(naranja domain.Naranja) (domain.Naranja, 
 
 	return naranjaCreada, nil
 }
+
+// ALERTA!!! EN LA BD TRIGGER A CAJA

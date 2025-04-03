@@ -152,23 +152,42 @@ func (m *MySQL) Delete(id int) error {
 }
 
 func (m *MySQL) GetByLote(loteID int) ([]domain.Caja, error) {
-	rows, err := m.db.Query("SELECT id, descripcion, peso_total, precio, hora_inicio, hora_fin, lote_fk, encargado_fk, cantidad FROM cajas WHERE lote_fk = ?", loteID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var cajas []domain.Caja
-	for rows.Next() {
-		var caja domain.Caja
-		if err := rows.Scan(&caja.ID, &caja.Descripcion, &caja.PesoTotal, &caja.Precio, &caja.HoraInicio, &caja.HoraFin, &caja.LoteFK, &caja.EncargadoFK, &caja.Cantidad); err != nil {
-			return nil, err
-		}
-		cajas = append(cajas, caja)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return cajas, nil
+    rows, err := m.db.Query(`
+        SELECT id, descripcion, peso_total, precio, hora_inicio, hora_fin, 
+               lote_fk, encargado_fk, cantidad, estado, esp32_fk
+        FROM cajas 
+        WHERE lote_fk = ?`, loteID)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+    
+    var cajas []domain.Caja
+    for rows.Next() {
+        var caja domain.Caja
+        if err := rows.Scan(
+            &caja.ID, 
+            &caja.Descripcion, 
+            &caja.PesoTotal, 
+            &caja.Precio, 
+            &caja.HoraInicio, 
+            &caja.HoraFin, 
+            &caja.LoteFK, 
+            &caja.EncargadoFK, 
+            &caja.Cantidad,
+            &caja.Estado,   
+            &caja.Esp32FK);  
+        err != nil {
+            return nil, err
+        }
+        cajas = append(cajas, caja)
+    }
+    
+    if err := rows.Err(); err != nil {
+        return nil, err
+    }
+    
+    return cajas, nil
 }
 
 func (m *MySQL) GetByEncargado(encargadoId int) ([]domain.Caja, error) {

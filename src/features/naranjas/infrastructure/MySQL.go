@@ -52,7 +52,7 @@ func (m *MySQL) GetById(id int) (domain.Naranja, error) {
 }
 
 func (m *MySQL) GetByCaja(cajaId int) ([]domain.Naranja, error) {
-	rows, err := m.db.Query("SELECT id, peso, tamaño, color, hora, caja_fk, esp32_fk FROM naranjas WHERE caja_fk = ?", cajaId)
+	rows, err := m.db.Query("SELECT id, peso, tamano, color, hora, caja_fk, esp32_fk FROM naranjas WHERE caja_fk = ?", cajaId)
 	if err != nil {
 		return nil, err
 	}
