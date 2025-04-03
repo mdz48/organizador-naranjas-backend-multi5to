@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"organizador-naranjas-backend-multi5to/src/features/esp32/domain/entities"
 )
@@ -12,7 +13,25 @@ type MYSQL struct {
 
 // Delete implements ports.IEsp32.
 func (mysql *MYSQL) Delete(id string) error {
-	panic("unimplemented")
+	query := `DELETE FROM esp32 WHERE id = ?`
+
+	result, err := mysql.conn.Prepare(query)
+
+	if err != nil {
+		fmt.Printf("error to prepare query")
+		return err
+	}
+
+	defer result.Close()
+
+	_, errQuery := result.Exec(id)
+
+	if errQuery != nil {
+		fmt.Printf("error to exec query")
+		return errQuery
+	}
+
+	return nil
 }
 
 func NewMysql(conn *sql.DB) *MYSQL {
