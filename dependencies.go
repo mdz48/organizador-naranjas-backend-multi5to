@@ -126,6 +126,8 @@ func (d *Dependencies) Run() error {
 	updateLoteStatusController := lotesControllers.NewUpdateLoteStatusController(updateLoteStatusUseCase)
 	getLoteByUserUseCase := lotesUseCases.NewGetLotesByUserUseCase(lotesDatabase)
 	getLoteByUserController := lotesControllers.NewGetLotesByUserController(getLoteByUserUseCase)
+	createLoteWithCajasUseCase := lotesUseCases.NewCreateLoteWithCajasUseCase(lotesDatabase, cajasDatabase)
+	createLoteWithCajasController := lotesControllers.NewCreateLoteWithCajasController(createLoteWithCajasUseCase)
 	
 
 	lotesRoutes := lotesInfrastructure.NewLotesRoutes(
@@ -138,6 +140,7 @@ func (d *Dependencies) Run() error {
 		updateLoteControlerr,
 		updateLoteStatusController, 
 		getLoteByUserController,
+		createLoteWithCajasController,
 	)
 
 	esp32Database := esp32Adapter.NewMysql(database.Conn)
