@@ -2,5 +2,6 @@ package entities
 
 type Esp32 struct {
 	Id            string `json:"id"`
-	IdPropietario int    `json:"id_propietario"` 
+	IdPropietario int    `json:"id_propietario"`
+	Status        string `json:"status"`
 }

@@ -2,49 +2,56 @@
 package controllers
 
 import (
-    "organizador-naranjas-backend-multi5to/src/features/lotes/application"
+	"organizador-naranjas-backend-multi5to/src/features/lotes/application"
     "organizador-naranjas-backend-multi5to/src/features/lotes/domain"
-    "strings"
-    "time"
+	"strings"
+	"time"
 
-    "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
 type CreateLoteWithCajasController struct {
-    uc *application.CreateLoteWithCajasUseCase
+	uc *application.CreateLoteWithCajasUseCase
 }
 
 func NewCreateLoteWithCajasController(uc *application.CreateLoteWithCajasUseCase) *CreateLoteWithCajasController {
-    return &CreateLoteWithCajasController{
-        uc: uc,
-    }
+	return &CreateLoteWithCajasController{
+		uc: uc,
+	}
 }
 
-func (ctr *CreateLoteWithCajasController) Run(ctx *gin.Context) {
-    var req domain.LoteWithCajas
+func (c *CreateLoteWithCajasController) Run(ctx *gin.Context) {
+	var req domain.LoteWithCajas
 
-    if err := ctx.ShouldBindJSON(&req); err != nil {
-        ctx.JSON(400, gin.H{"error": err.Error()})
-        return
-    }
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
 
-    // Formatear la fecha si es necesario
-    if strings.Contains(req.Lote.Fecha, "T") {
-        parsedTime, err := time.Parse(time.RFC3339, req.Lote.Fecha)
-        if err == nil {
-            req.Lote.Fecha = parsedTime.Format("2006-01-02")
-        }
-    }
+	// Formatear la fecha si es necesario
+	if strings.Contains(req.Lote.Fecha, "T") {
+		parsedTime, err := time.Parse(time.RFC3339, req.Lote.Fecha)
+		if err == nil {
+			req.Lote.Fecha = parsedTime.Format("2006-01-02")
+		}
+	}
 
-    // Llamar al caso de uso con el esp32_id
-    createdLote, cajas, err := ctr.uc.Execute(req.Lote, req.Esp32FK)
-    if err != nil {
-        ctx.JSON(500, gin.H{"error": err.Error()})
-        return
-    }
+	// Llamar al caso de uso con el esp32_id
+	createdLote, cajas, err := c.uc.Execute(req.Lote, req.Esp32FK)
+	if err != nil {
+		// Verificar si es un error de validación del ESP32
+		if strings.Contains(err.Error(), "estado") {
+			// Error de validación del ESP32
+			ctx.JSON(400, gin.H{"error": err.Error()})
+		} else {
+			// Otros errores
+			ctx.JSON(500, gin.H{"error": err.Error()})
+		}
+		return
+	}
 
-    ctx.JSON(201, gin.H{
-        "lote": createdLote,
-        "cajas": cajas,
-    })
+	ctx.JSON(201, gin.H{
+		"lote":  createdLote,
+		"cajas": cajas,
+	})
 }
