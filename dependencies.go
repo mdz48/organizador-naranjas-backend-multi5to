@@ -164,6 +164,9 @@ func (d *Dependencies) Run() error {
 		getLotesWithCajasByUserControllerWithRanges,
 	)
 
+	// Crear el productor de ESP32 (funcionará incluso con rabbitMQ = nil)
+	esp32Producer := esp32Adapter.NewRabbitMQProducer(rabbitMQ)
+
 	createEsp32UseCase := esp32UseCases.NewSaveEsp32(esp32Database)
 	createEsp32Controller := esp32Controllers.NewCreateEsp32Controller(createEsp32UseCase)
 	getEsp32ByUsernameUseCase := esp32UseCases.NewGetEsp32ByPropietarioUseCase(esp32Database)
@@ -174,6 +177,7 @@ func (d *Dependencies) Run() error {
 		esp32Database,
 		cajasDatabase,
 		updateLoteStatusUseCase,
+		esp32Producer,
 	)
 	updateEsp32StatusController := esp32Controllers.NewUpdateEsp32StatusController(updateEsp32StatusUseCase)
 	getEsp32ByPropietarioAndStatusUseCase := esp32UseCases.NewGetEsp32ByPropietarioAndStatusUseCase(esp32Database)
@@ -183,7 +187,7 @@ func (d *Dependencies) Run() error {
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"http://localhost:5173"}
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
-	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"}
 	config.ExposeHeaders = []string{"Content-Length"}
 	config.AllowCredentials = true
 	d.engine.Use(cors.New(config))

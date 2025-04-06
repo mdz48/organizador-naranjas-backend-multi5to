@@ -12,17 +12,20 @@ type UpdateEsp32StatusUseCase struct {
 	db                      ports.IEsp32
 	cajaRepository          cajaDomain.ICaja
 	updateLoteStatusUseCase *loteUseCase.UpdateLoteStatusUseCase
+	producer                ports.IEsp32Producer
 }
 
 func NewUpdateEsp32StatusUseCase(
 	db ports.IEsp32,
 	cajaRepository cajaDomain.ICaja,
 	updateLoteStatusUseCase *loteUseCase.UpdateLoteStatusUseCase,
+	producer ports.IEsp32Producer,
 ) *UpdateEsp32StatusUseCase {
 	return &UpdateEsp32StatusUseCase{
 		db:                      db,
 		cajaRepository:          cajaRepository,
 		updateLoteStatusUseCase: updateLoteStatusUseCase,
+		producer:                producer,
 	}
 }
 
@@ -52,6 +55,19 @@ func (uc *UpdateEsp32StatusUseCase) Run(id string, status string) error {
 		}
 	}
 
-	// Actualizar el estado del ESP32
-	return uc.db.UpdateStatus(id, status)
+	// Actualizar el estado del ESP32 en la base de datos
+	err := uc.db.UpdateStatus(id, status)
+	if err != nil {
+		return err
+	}
+
+	// Publicar el mensaje de cambio de estado
+	if uc.producer != nil {
+		if err := uc.producer.PublishStatusChange(id, status); err != nil {
+			log.Printf("Error al publicar mensaje de cambio de estado para ESP32 %s: %v", id, err)
+			// No fallamos la operación si la publicación del mensaje falla
+		}
+	}
+
+	return nil
 }
