@@ -152,42 +152,41 @@ func (m *MySQL) Delete(id int) error {
 }
 
 func (m *MySQL) GetByLote(loteID int) ([]domain.Caja, error) {
-    rows, err := m.db.Query(`
+	rows, err := m.db.Query(`
         SELECT id, descripcion, peso_total, precio, hora_inicio, hora_fin, 
                lote_fk, encargado_fk, cantidad, estado, esp32_fk
         FROM cajas 
         WHERE lote_fk = ?`, loteID)
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
-    
-    var cajas []domain.Caja
-    for rows.Next() {
-        var caja domain.Caja
-        if err := rows.Scan(
-            &caja.ID, 
-            &caja.Descripcion, 
-            &caja.PesoTotal, 
-            &caja.Precio, 
-            &caja.HoraInicio, 
-            &caja.HoraFin, 
-            &caja.LoteFK, 
-            &caja.EncargadoFK, 
-            &caja.Cantidad,
-            &caja.Estado,   
-            &caja.Esp32FK);  
-        err != nil {
-            return nil, err
-        }
-        cajas = append(cajas, caja)
-    }
-    
-    if err := rows.Err(); err != nil {
-        return nil, err
-    }
-    
-    return cajas, nil
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var cajas []domain.Caja
+	for rows.Next() {
+		var caja domain.Caja
+		if err := rows.Scan(
+			&caja.ID,
+			&caja.Descripcion,
+			&caja.PesoTotal,
+			&caja.Precio,
+			&caja.HoraInicio,
+			&caja.HoraFin,
+			&caja.LoteFK,
+			&caja.EncargadoFK,
+			&caja.Cantidad,
+			&caja.Estado,
+			&caja.Esp32FK); err != nil {
+			return nil, err
+		}
+		cajas = append(cajas, caja)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return cajas, nil
 }
 
 func (m *MySQL) GetByEncargado(encargadoId int) ([]domain.Caja, error) {
@@ -295,43 +294,73 @@ func (m *MySQL) UpdateStatusByLoteId(loteId int, estado string) error {
 }
 
 func (m *MySQL) GetTop3ByLote(loteId int) ([]domain.Caja, error) {
-    // Modificamos la consulta para obtener solo 3 cajas ordenadas por ID
-    rows, err := m.db.Query(`
+	// Modificamos la consulta para obtener solo 3 cajas ordenadas por ID
+	rows, err := m.db.Query(`
         SELECT id, descripcion, peso_total, precio, hora_inicio, hora_fin, 
                lote_fk, encargado_fk, cantidad, estado, esp32_fk 
         FROM cajas 
         WHERE lote_fk = ? 
         ORDER BY id 
         LIMIT 3`, loteId)
-    
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
-    
-    var cajas []domain.Caja
-    for rows.Next() {
-        var caja domain.Caja
-        if err := rows.Scan(
-            &caja.ID, 
-            &caja.Descripcion, 
-            &caja.PesoTotal, 
-            &caja.Precio, 
-            &caja.HoraInicio, 
-            &caja.HoraFin, 
-            &caja.LoteFK, 
-            &caja.EncargadoFK, 
-            &caja.Cantidad,
-            &caja.Estado,
-            &caja.Esp32FK); err != nil {
-            return nil, err
-        }
-        cajas = append(cajas, caja)
-    }
-    
-    if err := rows.Err(); err != nil {
-        return nil, err
-    }
-    
-    return cajas, nil
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var cajas []domain.Caja
+	for rows.Next() {
+		var caja domain.Caja
+		if err := rows.Scan(
+			&caja.ID,
+			&caja.Descripcion,
+			&caja.PesoTotal,
+			&caja.Precio,
+			&caja.HoraInicio,
+			&caja.HoraFin,
+			&caja.LoteFK,
+			&caja.EncargadoFK,
+			&caja.Cantidad,
+			&caja.Estado,
+			&caja.Esp32FK); err != nil {
+			return nil, err
+		}
+		cajas = append(cajas, caja)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return cajas, nil
+}
+
+// GetLotesByEsp32 obtiene los IDs de lotes asociados a un ESP32 con un estado específico
+func (m *MySQL) GetLotesByEsp32(esp32Id string, estado string) ([]int, error) {
+	query := `
+        SELECT DISTINCT lote_fk 
+        FROM cajas 
+        WHERE esp32_fk = ? AND estado = ?
+    `
+
+	rows, err := m.db.Query(query, esp32Id, estado)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var loteIds []int
+	for rows.Next() {
+		var loteId int
+		if err := rows.Scan(&loteId); err != nil {
+			return nil, err
+		}
+		loteIds = append(loteIds, loteId)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return loteIds, nil
 }
