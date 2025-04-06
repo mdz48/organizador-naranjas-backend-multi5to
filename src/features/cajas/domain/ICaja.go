@@ -12,4 +12,5 @@ type ICaja interface {
 	FindByEsp32StateAndDescription(esp32Id string, state string, description string) (Caja, error)
 	UpdateStatusByLoteId(loteId int, estado string) error
 	GetTop3ByLote(loteId int) ([]Caja, error)
+	GetLotesByEsp32(esp32Id string, estado string) ([]int, error)
 }

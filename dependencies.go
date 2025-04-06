@@ -130,11 +130,10 @@ func (d *Dependencies) Run() error {
 	// Necesito esto JUSTO ACÁ, NO MOVER
 	esp32Database := esp32Adapter.NewMysql(database.Conn)
 
-
 	// Inicializar el caso de uso que crea lotes con cajas
 	createLoteWithCajasUseCase := lotesUseCases.NewCreateLoteWithCajasUseCase(
-		lotesDatabase, 
-		cajasDatabase, 
+		lotesDatabase,
+		cajasDatabase,
 		esp32Database,
 	)
 	createLoteWithCajasController := lotesControllers.NewCreateLoteWithCajasController(createLoteWithCajasUseCase)
@@ -156,7 +155,7 @@ func (d *Dependencies) Run() error {
 		listLoteDateController,
 		deleteLoteController,
 		updateLoteControlerr,
-		updateLoteStatusController, 
+		updateLoteStatusController,
 		getLoteByUserController,
 		createLoteWithCajasController,
 		getLoteWithCajasController,
@@ -165,22 +164,31 @@ func (d *Dependencies) Run() error {
 		getLotesWithCajasByUserControllerWithRanges,
 	)
 
+	// Crear el productor de ESP32 (funcionará incluso con rabbitMQ = nil)
+	esp32Producer := esp32Adapter.NewRabbitMQProducer(rabbitMQ)
+
 	createEsp32UseCase := esp32UseCases.NewSaveEsp32(esp32Database)
 	createEsp32Controller := esp32Controllers.NewCreateEsp32Controller(createEsp32UseCase)
 	getEsp32ByUsernameUseCase := esp32UseCases.NewGetEsp32ByPropietarioUseCase(esp32Database)
 	getEsp32ByUsernameController := esp32Controllers.NewGetEsp32ByPropietarioController(getEsp32ByUsernameUseCase)
 	deleteEsp32UseCase := esp32UseCases.NewDeleteEsp32UseCase(esp32Database)
 	deleteEsp32Controller := esp32Controllers.NewDeleteEsp32Controller(deleteEsp32UseCase)
-	updateEsp32StatusUseCase := esp32UseCases.NewUpdateEsp32StatusUseCase(esp32Database)
+	updateEsp32StatusUseCase := esp32UseCases.NewUpdateEsp32StatusUseCase(
+		esp32Database,
+		cajasDatabase,
+		updateLoteStatusUseCase,
+		esp32Producer,
+	)
 	updateEsp32StatusController := esp32Controllers.NewUpdateEsp32StatusController(updateEsp32StatusUseCase)
 	getEsp32ByPropietarioAndStatusUseCase := esp32UseCases.NewGetEsp32ByPropietarioAndStatusUseCase(esp32Database)
 	getEsp32ByPropietarioAndStatusController := esp32Controllers.NewGetEsp32ByPropietarioAndStatusController(getEsp32ByPropietarioAndStatusUseCase)
 	sp32Routes := esp32Infrastructure.NewEsp32Routes(d.engine, createEsp32Controller, getEsp32ByUsernameController, deleteEsp32Controller, updateEsp32StatusController, getEsp32ByPropietarioAndStatusController)
 
+	// El patch es necesario
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"http://localhost:5173"}
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
-	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"}
 	config.ExposeHeaders = []string{"Content-Length"}
 	config.AllowCredentials = true
 	d.engine.Use(cors.New(config))
