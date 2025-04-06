@@ -184,6 +184,7 @@ func (d *Dependencies) Run() error {
 	getEsp32ByPropietarioAndStatusController := esp32Controllers.NewGetEsp32ByPropietarioAndStatusController(getEsp32ByPropietarioAndStatusUseCase)
 	sp32Routes := esp32Infrastructure.NewEsp32Routes(d.engine, createEsp32Controller, getEsp32ByUsernameController, deleteEsp32Controller, updateEsp32StatusController, getEsp32ByPropietarioAndStatusController)
 
+	// El patch es necesario
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"http://localhost:5173"}
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
