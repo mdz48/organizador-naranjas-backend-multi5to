@@ -34,7 +34,13 @@ func (g *GetLotesWithCajasByUserUseCase) Execute(userId int) ([]domain.LoteWithC
 		if err != nil {
 			// Loguear el error pero continuar con otros lotes
 			log.Printf("Error al obtener cajas para lote %d: %v", lote.ID, err)
-			continue
+			// En lugar de continuar, usar un array vacío
+			cajas = []cajaDomain.Caja{}
+		}
+
+		// Si cajas es nil, usar un array vacío
+		if cajas == nil {
+			cajas = []cajaDomain.Caja{}
 		}
 
 		loteWithCajas := domain.LoteWithCajasResponse{
