@@ -7,6 +7,7 @@ import (
 	cajaRepo "organizador-naranjas-backend-multi5to/src/features/cajas/domain"
 	"organizador-naranjas-backend-multi5to/src/features/esp32/domain/ports"
 	"organizador-naranjas-backend-multi5to/src/features/lotes/domain"
+	messagePort "organizador-naranjas-backend-multi5to/src/features/lotes/domain/ports"
 	"time"
 )
 
@@ -14,17 +15,20 @@ type CreateLoteWithCajasUseCase struct {
 	loteRepository  domain.ILote
 	cajaRepository  cajaRepo.ICaja
 	esp32Repository ports.IEsp32
+	messageProducer messagePort.IMessageProducer
 }
 
 func NewCreateLoteWithCajasUseCase(
 	loteRepository domain.ILote,
 	cajaRepository cajaRepo.ICaja,
 	esp32Repository ports.IEsp32,
+	messageProducer messagePort.IMessageProducer,
 ) *CreateLoteWithCajasUseCase {
 	return &CreateLoteWithCajasUseCase{
 		loteRepository:  loteRepository,
 		cajaRepository:  cajaRepository,
 		esp32Repository: esp32Repository,
+		messageProducer: messageProducer,
 	}
 }
 
@@ -88,6 +92,18 @@ func (c *CreateLoteWithCajasUseCase) Execute(lote domain.Lote, esp32FK string) (
 		if err != nil {
 			// Loguear el error pero no fallar la creación
 			fmt.Printf("Error al actualizar el estado del ESP32 %s: %v\n", esp32FK, err)
+		}
+
+		// Enviar mensaje a RabbitMQ para notificar a la ESP32
+		message := messagePort.Message{
+			Esp32FK: esp32FK,
+			Content: "esperando",
+		}
+
+		err = c.messageProducer.SendMessage(message)
+		if err != nil {
+			// Loguear el error pero no fallar la creación
+			fmt.Printf("Error al enviar mensaje a la ESP32 %s: %v\n", esp32FK, err)
 		}
 	}
 
