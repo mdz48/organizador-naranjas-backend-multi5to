@@ -86,7 +86,6 @@ func (c *CreateLoteWithCajasUseCase) Execute(lote domain.Lote, esp32FK string) (
 		cajas = append(cajas, createdCaja)
 	}
 
-	// Si se asignó un ESP32, actualizar su estado a "activo"
 	if esp32FK != "" {
 		err = c.esp32Repository.UpdateStatus(esp32FK, "activo")
 		if err != nil {
@@ -97,7 +96,7 @@ func (c *CreateLoteWithCajasUseCase) Execute(lote domain.Lote, esp32FK string) (
 		// Enviar mensaje a RabbitMQ para notificar a la ESP32
 		message := messagePort.Message{
 			Esp32FK: esp32FK,
-			Content: "esperando",
+			Content: "activo",
 		}
 
 		err = c.messageProducer.SendMessage(message)
