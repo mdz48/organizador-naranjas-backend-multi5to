@@ -14,6 +14,7 @@ import (
 	lotesUseCases "organizador-naranjas-backend-multi5to/src/features/lotes/application"
 	lotesInfrastructure "organizador-naranjas-backend-multi5to/src/features/lotes/infrastructure"
 	lotesControllers "organizador-naranjas-backend-multi5to/src/features/lotes/infrastructure/controllers"
+	lotesMessaging "organizador-naranjas-backend-multi5to/src/features/lotes/infrastructure/messaging"
 
 	naranjasUseCases "organizador-naranjas-backend-multi5to/src/features/naranjas/application"
 	naranjasInfrastructure "organizador-naranjas-backend-multi5to/src/features/naranjas/infrastructure"
@@ -130,11 +131,15 @@ func (d *Dependencies) Run() error {
 	// Necesito esto JUSTO ACÁ, NO MOVER
 	esp32Database := esp32Adapter.NewMysql(database.Conn)
 
+	// Crear el productor de RabbitMQ para lotes
+	loteProducer := lotesMessaging.NewRabbitMQProducer(rabbitMQ.Conn)
+
 	// Inicializar el caso de uso que crea lotes con cajas
 	createLoteWithCajasUseCase := lotesUseCases.NewCreateLoteWithCajasUseCase(
 		lotesDatabase,
 		cajasDatabase,
 		esp32Database,
+		loteProducer, // <-- Añadir el productor RabbitMQ como parámetro
 	)
 	createLoteWithCajasController := lotesControllers.NewCreateLoteWithCajasController(createLoteWithCajasUseCase)
 
