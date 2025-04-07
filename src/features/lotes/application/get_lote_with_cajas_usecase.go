@@ -30,6 +30,11 @@ func (g *GetLoteWithCajasUseCase) Execute(loteId int) (domain.LoteWithCajasRespo
 		return domain.LoteWithCajasResponse{}, err
 	}
 
+	// Verificar si cajas es nil y usar array vacío en ese caso
+	if cajas == nil {
+		cajas = []cajaDomain.Caja{}
+	}
+
 	// 3. Crear y devolver la respuesta
 	response := domain.LoteWithCajasResponse{
 		Lote:  lote,
